@@ -10,7 +10,7 @@
     Design and goals
     ----------------
 
-    - Use Python throughout
+    - Use Python 2.7 throughout
 
     The project is split into two main parts:
 
