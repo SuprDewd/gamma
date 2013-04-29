@@ -24,7 +24,12 @@
         - Internalization from start (mainly English and Icelandic)
         - User/team management
         - Programming contest interface
+        - Manage contests
+            - Choose available programming languages
+            - Create problems, as well as test cases and solutions
         - Live scoreboard
+        - Place to post solutions, and vote on them (and perhaps comment), behind each problem (similar to Project Euler)
+        - Each user can form a team, and then apply for a contest. This only applies to contests where teams are allowed.
 
     - Judge backend
 
