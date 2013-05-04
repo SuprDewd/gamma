@@ -25,21 +25,33 @@
                 width: 70px;
             }
 
+            #scoreboard .team {
+                width: 150px;
+            }
+
             #scoreboard th.problem, #scoreboard td.problem {
                 text-align: center;
             }
 
-            #scoreboard th.penalty {
-                width: 140px;
-            }
-
-            #scoreboard th.rank {
-                text-align: center;
+            #scoreboard .penalty {
                 width: 50px;
             }
 
-            #scoreboard td.rank {
-                text-align: right;
+            #scoreboard .penalty {
+                text-align: center;
+            }
+
+            #scoreboard .points {
+                width: 50px;
+            }
+
+            #scoreboard .points {
+                text-align: center;
+            }
+
+            #scoreboard .rank {
+                text-align: center;
+                width: 40px;
             }
         </style>
         <link href="css/bootstrap-responsive.css" rel="stylesheet">
@@ -54,7 +66,7 @@
 
         <div class="navbar navbar-inverse navbar-fixed-top">
             <div class="navbar-inner">
-                <div class="container">
+                <div class="container-fluid">
                     <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -71,7 +83,7 @@
             </div>
         </div>
 
-        <div class="container">
+        <div class="container-fluid">
 
             <h1>Scoreboard</h1>
             <table class="table table-bordered table-striped" id="scoreboard">
@@ -79,6 +91,7 @@
                     <tr>
                         <th class="rank">#</th>
                         <th class="team">Team</th>
+                        <th class="points">Points</th>
                         <th class="penalty">Penalty</th>
                         <th class="problem">A</th>
                         <th class="problem">B</th>
@@ -94,6 +107,7 @@
                     <tr>
                         <td class="rank">1</td>
                         <td class="team">SuprDewd</td>
+                        <td class="points">1</td>
                         <td class="penalty">00:13</td>
                         <td class="problem"></td>
                         <td class="problem"></td>
@@ -107,6 +121,7 @@
                     <tr>
                         <td class="rank">2</td>
                         <td class="team">Petr</td>
+                        <td class="points">1</td>
                         <td class="penalty">00:25</td>
                         <td class="problem ac">00:05 (1)</td>
                         <td class="problem"></td>
