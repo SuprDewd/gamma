@@ -1,13 +1,17 @@
 import os
 import logging
-from config import *
 import tornado.web
-from tornado.options import options
-from tornado.web import url
 import tornado.httpserver
 import tornado.ioloop
+from tornado.options import options
+from tornado.web import url
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from config import *
 from handlers import *
 import models
+import pagination # TODO: get rid of this import
+import test_data
 
 class GammaWeb(tornado.web.Application):
     def __init__(self):
@@ -19,6 +23,7 @@ class GammaWeb(tornado.web.Application):
 
             # Contests
             url('/contests/?',                                   AllContestsHandler),
+            url('/contests/([0-9]+)/?',                          AllContestsHandler),
             url('/contest/([0-9]+)/?',                           ContestHandler),
             url('/contest/([0-9]+)/scoreboard/?',                ScoreboardHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/?',           ProblemHandler),
@@ -26,6 +31,7 @@ class GammaWeb(tornado.web.Application):
 
             # Problems
             url('/problems/?',                                   AllProblemsHandler),
+            url('/problems/([0-9]+)/?',                          AllProblemsHandler),
             url('/problem/([^/]+)/?',                            ProblemHandler),
             url('/problem/([^/]+)/solutions/?',                  SolutionHandler),
 
@@ -46,17 +52,21 @@ class GammaWeb(tornado.web.Application):
             static_path = os.path.join(cur_dir, 'static'),
             template_path = os.path.join(cur_dir, 'templates'),
             xsrf_cookies = True,
-            cookie_secret = 'fP#91c.e+8jMqie+fZN!Oc*LABaMGl/PSUyTZhgx87+=@yepwcXN.kW'
+            cookie_secret = 'fP#91c.e+8jMqie+fZN!Oc*LABaMGl/PSUyTZhgx87+=@yepwcXN.kW',
+            ui_modules = { 'Pagination': pagination.PaginationModule }
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
-        db_engine = create_engine(DB_PATH, convert_unicode=True, echo=options.debug)
+        db_engine = create_engine(options.db_path, convert_unicode=True, echo=options.debug)
         models.init_db(db_engine)
-        self.db = scoped_session(engine=db_engine)
+        self.db = scoped_session(sessionmaker(bind=db_engine))
 
         logger = logging.getLogger()
         if options.debug:
             logger.setLevel(logging.DEBUG)
+
+        if options.local:
+            test_data.add_test_data(self.db)
 
 def main():
     tornado.options.parse_command_line()

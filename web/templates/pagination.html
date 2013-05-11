@@ -1,0 +1,17 @@
+<div class="btn-toolbar" style="text-align:center">
+    <div class="btn-group">
+        {% if 0 <= cur_page-1 %}
+            <a class="btn" href="{{ page_location % (cur_page-1) }}">Fyrri</a>
+        {% else %}
+            <div class="btn disabled">Fyrri</div>
+        {% end %}
+        {% for i in range(total_pages) %}
+            <a class="btn {{ "btn-primary" if i == cur_page else "" }}" href="{{ page_location % i }}">{{ i+1 }}</a>
+        {% end %}
+        {% if cur_page+1 < total_pages %}
+            <a class="btn" href="{{ page_location % (cur_page+1) }}">Næsta</a>
+        {% else %}
+            <div class="btn disabled">Næsta</div>
+        {% end %}
+    </ul>
+</div>

@@ -45,13 +45,9 @@ class Contest(Base):
 class Registration(Base):
     __tablename__ = 'Registration'
 
-    user_id = Column(Integer, ForeignKey('User.id'))
-    contest_id = Column(Integer, ForeignKey('Contest.id'))
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
     created = Column(DateTime, nullable=False)
-
-    __table_args__ = (
-        #FIXME: Create a compound primary key: PrimaryKey('user_id', 'contest_id'),
-    )
 
 
 class Problem(Base):
@@ -63,6 +59,7 @@ class Problem(Base):
     description_file = Column(String, nullable=False)
     solution_file = Column(String, nullable=True)
     checker_file = Column(String, nullable=True)
+    time_limit = Column(Integer, nullable=True) # milliseconds
     judge = Column(Enum('manual', 'automatic_diff', 'automatic_checker', name='judge_type'), nullable=True)
 
 
@@ -75,30 +72,27 @@ class Test(Base):
     output_file = Column(String, nullable=False)
 
 
-class UserSolve(Base):
-    __tablename__ = 'UserSolve'
+class Submission(Base):
+    __tablename__ = 'Submission'
 
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('User.id'))
     problem_id = Column(Integer, ForeignKey('Problem.id'))
     contest_id = Column(Integer, ForeignKey('Contest.id'), nullable=True)
     solve_at = Column(Integer, nullable=True)
-
-    __table_args__ = (
-        #FIXME: Create a compound primary key: PrimaryKey('user_id', 'problem_id'),
-        #FIXME: What happens when a user solves a problem before contest start? Shouldn't he be allowed to solve it?
-    )
+    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', name='result_type'))
+    #FIXME: What happens when a user solves a problem before contest start? Shouldn't he be allowed to solve it?
 
 
 class ContestProblem(Base):
     __tablename__ = 'ContestProblem'
 
     short_id = Column(String, nullable=False)
-    problem_id = Column(Integer, ForeignKey('Problem.id'))
-    contest_id = Column(Integer, ForeignKey('Contest.id'))
+    problem_id = Column(Integer, ForeignKey('Problem.id'), primary_key=True)
+    contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
     appear_time = Column(Integer, nullable=True)  # minutes after contest.start_time
 
     __table_args__ = (
-        #FIXME: Create a compound primary key: PrimaryKey('problem_id', 'contest_id')
         UniqueConstraint('short_id', 'contest_id'),
     )
 
@@ -114,12 +108,8 @@ class Solution(Base):
 class SolutionLike(Base):
     __tablename__ = 'SolutionLike'
 
-    user_id = Column(Integer, ForeignKey('User.id'))
-    solution_id = Column(Integer, ForeignKey('Solution.id'))
-
-    __table_args__ = (
-        #FIXME: Create a compound primary key: PrimaryKey('user_id', 'solution_id')
-    )
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    solution_id = Column(Integer, ForeignKey('Solution.id'), primary_key=True)
 
 
 class SolutionComment(Base):
