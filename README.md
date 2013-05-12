@@ -1,4 +1,4 @@
-    gamma
+gamma
 ===========
 
 gamma is a programming contest management system and environment,
