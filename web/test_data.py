@@ -21,17 +21,17 @@ def add_test_data(db):
     for i in range(cnt):
         db.add(Problem(name='Test Problem %d' % i,
                        public=True,
-                       description_file='test'))
+                       description='test'))
 
     db.commit()
 
-    cnt = 30
+    # cnt = 30
 
-    for i in range(cnt):
-        db.add(Submission(user_id=random.randint(1, 10),
-                          problem_id=random.randint(1, cnt-1),
-                          contest_id=None,
-                          verdict='AC' if random.randint(0, 1) == 0 else 'WA'))
+    # for i in range(cnt):
+    #     db.add(ContestSubmission(team_id=random.randint(1, 10),
+    #                              problem_id=random.randint(1, cnt-1),
+    #                              contest_id=None,
+    #                              verdict='AC' if random.randint(0, 1) == 0 else 'WA'))
 
-    db.commit()
+    # db.commit()
 

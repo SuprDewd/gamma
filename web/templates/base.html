@@ -69,15 +69,15 @@
                     <a class="brand" href="/">gamma</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <!-- <li class="active"><a href="/">Forsíða</a></li> -->
-                            <li><a href="/contests/">Keppnir</a></li>
-                            <li><a href="/problems/">Dæmi</a></li>
+                            <li class="active"><a href="/">{{ _('Home') }}</a></li>
+                            <li><a href="/contests/">{{ _('Contests') }}</a></li>
+                            <li><a href="/problems/">{{ _('Problems') }}</a></li>
                         </ul>
                         <ul class="nav pull-right">
                             {% if current_user %}
                                 <li><a href="/user/logout/"><i class="icon-off"></i>Skrá út</a></li>
                             {% else %}
-                            <li><a href="/user/login/"><i class="icon-user"></i> Skrá inn</a></li>
+                                <li><a href="/user/login/"><i class="icon-user"></i> Skrá inn</a></li>
                                 <li><a href="/user/register/">Nýskrá</a></li>
                             {% end %}
                         </ul>

@@ -1,123 +1,178 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.schema import ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import ENUM as Enum
-from sqlalchemy.orm import relationship, backref, sessionmaker
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum
+from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from datetime import datetime
+import util
+import re
+
 
 Base = declarative_base()
 
-def init_db(engine):
-    Base.metadata.create_all(bind=engine)
+
+class DefaultTable(object):
+
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__
 
 
-class User(Base):
-    __tablename__ = 'User'
-
+class User(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False)
-    password_hash = Column(String, nullable=True)
-    email = Column(String, nullable=False)
-    confirmed = Column(Boolean, nullable=False)
-    confirm_token = Column(String, nullable=True)
-    confirm_expires = Column(DateTime, nullable=True)
-    name = Column(String, nullable=True)
-    role = Column(Enum('admin', 'user', 'judge', name='role_type'), nullable=False)
+    username = Column(String(30), nullable=False, unique=True)
+    password_hash = Column(String)
+    email = Column(String(200), nullable=False)
+    name = Column(String)
+    institute = Column(String)
+    api_key = Column(String)
+    registered = Column(DateTime, default=datetime.now)
+    active = Column(Boolean, default=False)
+    confirm_token = Column(String, default=util.generate_confirm_token, unique=True)
+    # main_team_id = Column(Integer, ForeignKey('Team.id'))
 
-    __table_args__ = (
-        UniqueConstraint('username'),
-        UniqueConstraint('email'),
-        UniqueConstraint('confirm_token'),
-    )
+    @staticmethod
+    def validate(db, locale, username, email, name, institute, password, password_confirm):
+        _ = locale.translate
+        res = {}
+
+        err = []
+        if len(username) < 3: err.append(_('Username too short'))
+        if len(username) > 20: err.append(_('Username too long'))
+        if not re.match(r'^[A-Za-z0-9_]*$', username): err.append(_('Invalid characters in username'))
+        if not err and (db.query(User).filter_by(username=username).count() > 0
+                        or db.query(Team).filter_by(name=username).count() > 0): err.append(_('Username is taken'))
+        if err: res['username'] = err
+
+        err = []
+        if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email): err.append(_('Invalid email address'))
+        if err: res['email'] = err
+
+        err = []
+        if len(password) < 6: err.append(_("Password too short"))
+        if err: res['password'] = err
+
+        err = []
+        if not 'password' in res and password_confirm != password: err.append(_("Passwords don't match"))
+        if err: res['password_confirm'] = err
+
+        return res
 
 
-class Contest(Base):
-    __tablename__ = 'Contest'
-
+class Team(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    start_time = Column(DateTime, nullable=True)
-    length = Column(Integer, nullable=True) # contest length in minutes
-    registration_start = Column(DateTime, nullable=True)
-    registration_end = Column(DateTime, nullable=True)
-    freeze_scoreboard = Column(Integer, nullable=True) # minutes after start_time
+    name = Column(String, nullable=False, unique=True)
+    leader_id = Column(Integer, ForeignKey('User.id'), nullable=False)
+    locked = Column(Boolean, nullable=False, default=False)
 
 
-class Registration(Base):
-    __tablename__ = 'Registration'
-
+class TeamMember(Base, DefaultTable):
     user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
-    contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
-    created = Column(DateTime, nullable=False)
+    team_id = Column(Integer, ForeignKey('Team.id'), primary_key=True)
 
 
-class Problem(Base):
-    __tablename__ = 'Problem'
+class TeamInvitation(Base, DefaultTable):
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
+    team_id = Column(Integer, ForeignKey('Team.id'), primary_key=True)
 
+
+class Contest(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    public = Column(Boolean, nullable=False)
-    description_file = Column(String, nullable=False)
-    solution_file = Column(String, nullable=True)
-    checker_file = Column(String, nullable=True)
-    time_limit = Column(Integer, nullable=True) # milliseconds
-    judge = Column(Enum('manual', 'automatic_diff', 'automatic_checker', name='judge_type'), nullable=True)
+    start_time = Column(DateTime)
+    length = Column(Integer) # contest length in minutes
+    registration_start = Column(DateTime)
+    registration_end = Column(DateTime)
+    freeze_scoreboard = Column(Integer) # minutes after start_time
+    max_team_size = Column(Integer, nullable=False, default=1)
 
 
-class Test(Base):
-    __tablename__ = 'Test'
+class Registration(Base, DefaultTable):
+    team_id = Column(Integer, ForeignKey('Team.id'), primary_key=True)
+    contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
+    created = Column(DateTime, default=datetime.now, nullable=False)
 
+
+class ProgrammingLanguage(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
-    problem_id = Column(String, nullable=False)
-    input_file = Column(String, nullable=False)
-    output_file = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    compile_cmd = Column(String)
+    run_cmd = Column(String, nullable=False)
 
 
-class Submission(Base):
-    __tablename__ = 'Submission'
-
+class Problem(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('User.id'))
-    problem_id = Column(Integer, ForeignKey('Problem.id'))
-    contest_id = Column(Integer, ForeignKey('Contest.id'), nullable=True)
-    solve_at = Column(Integer, nullable=True)
-    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', name='result_type'))
-    #FIXME: What happens when a user solves a problem before contest start? Shouldn't he be allowed to solve it?
+    name = Column(String, nullable=False)
+    public = Column(Boolean, default=False, nullable=False)
+    description = Column(Text, nullable=False)
+    solution = Column(Text)
+    solution_lang_id = Column(Integer, ForeignKey('ProgrammingLanguage.id'))
+    checker = Column(Text)
+    checker_lang_id = Column(Integer, ForeignKey('ProgrammingLanguage.id'))
+    time_limit = Column(Integer) # milliseconds
+    memory_limit = Column(Integer) # bytes
 
 
-class ContestProblem(Base):
-    __tablename__ = 'ContestProblem'
+class Submission(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
+    problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
+    submitted = Column(DateTime, default=datetime.now, nullable=False)
+    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='submission_verdict'))
 
+
+class ContestSubmission(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    team_id = Column(Integer, ForeignKey('Team.id'), nullable=False)
+    problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
+    contest_id = Column(Integer, ForeignKey('Contest.id'), nullable=False)
+    submitted = Column(Integer, default=datetime.now, nullable=False) # minutes after contest.start_time
+    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='contest_submission_verdict'))
+
+
+class ContestProblem(Base, DefaultTable):
     short_id = Column(String, nullable=False)
     problem_id = Column(Integer, ForeignKey('Problem.id'), primary_key=True)
     contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
-    appear_time = Column(Integer, nullable=True)  # minutes after contest.start_time
+    start_time = Column(Integer) # minutes after contest.start_time
+    end_time = Column(Integer) # minutes after contest.start_time
 
     __table_args__ = (
         UniqueConstraint('short_id', 'contest_id'),
     )
 
 
-class Solution(Base):
-    __tablename__ = 'Solution'
-
+class ProblemComment(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('User.id'), nullable=True)
-    problem_id = Column(Integer, ForeignKey('Problem.id'))
-
-
-class SolutionLike(Base):
-    __tablename__ = 'SolutionLike'
-
-    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
-    solution_id = Column(Integer, ForeignKey('Solution.id'), primary_key=True)
-
-
-class SolutionComment(Base):
-    __tablename__ = 'SolutionComment'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('User.id'))
-    solution_id = Column(Integer, ForeignKey('Solution.id'))
-    created = Column(DateTime, nullable=False)
+    user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
+    problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
+    created = Column(DateTime, default=datetime.now, nullable=False)
     content = Column(Text, nullable=False)
+
+
+class ProblemCommentLike(Base, DefaultTable):
+    user_id = Column(Integer, primary_key=True)
+    problem_comment_id = Column(Integer, ForeignKey('ProblemComment.id'), primary_key=True)
+
+
+class Message(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    user_to_id = Column(Integer, ForeignKey('User.id'), nullable=False)
+    user_from_id = Column(Integer, ForeignKey('User.id'))
+    content = Column(Text, nullable=False)
+    read = Column(Boolean, default=False, nullable=False)
+    sent = Column(DateTime, default=datetime.now, nullable=False)
+
+
+class Permission(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+
+
+class PermissionGroup(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)
+
+
+class PermissionGroupUser(Base, DefaultTable):
+    permission_group_id = Column(Integer, ForeignKey('PermissionGroup.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('User.id'), primary_key=True)
 

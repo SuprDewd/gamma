@@ -1,0 +1,111 @@
+{% extends ../base.html %}
+{% block content %}
+
+{# TODO: add colors to errors #}
+
+<form class="form-horizontal" action="" method="POST">
+    <fieldset>
+        <div id="legend">
+            <legend class="">{{ _('Register') }}</legend>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="username">{{ _('Username') }}</label>
+            <div class="controls">
+                <input type="text" id="username" name="username" placeholder="" class="input-xlarge" value="{{ username if username else '' }}" />
+                <p class="help-block">{{ _("Anything matching") }} <tt>^[A-Za-z0-9_]{3,20}$</tt></p>
+                {% if 'username' in errs %}
+                    <ul>
+                        {% for err in errs['username'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="email">{{ _("E-mail") }}</label>
+            <div class="controls">
+                <input type="text" id="email" name="email" placeholder="" class="input-xlarge" value="{{ email if email else "" }}" />
+                <p class="help-block">{{ _("Please provide your E-mail") }}</p>
+                {% if 'email' in errs %}
+                    <ul>
+                        {% for err in errs['email'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="full_name">{{ _("Full name") }}</label>
+            <div class="controls">
+                <input type="text" id="full_name" name="full_name" placeholder="" class="input-xlarge" value="{{ full_name if full_name else "" }}" />
+                <p class="help-block">{{ _("Optionally provide your full name") }}</p>
+                {% if 'full_name' in errs %}
+                    <ul>
+                        {% for err in errs['full_name'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="institute">{{ _("Institute (school)") }}</label>
+            <div class="controls">
+                <input type="text" id="institute" name="institute" placeholder="" class="input-xlarge" value="{{ institute if institute else "" }}" />
+                <p class="help-block">{{ _("Optionally provide an institute") }}</p>
+                {% if 'institute' in errs %}
+                    <ul>
+                        {% for err in errs['institute'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="password">{{ _("Password") }}</label>
+            <div class="controls">
+                <input type="password" id="password" name="password" placeholder="" class="input-xlarge" value="" />
+                <p class="help-block">{{ _("Password should be at least 6 characters") }}</p>
+                {% if 'password' in errs %}
+                    <ul>
+                        {% for err in errs['password'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="password_confirm">{{ _("Password (confirm)") }}</label>
+            <div class="controls">
+                <input type="password" id="password_confirm" name="password_confirm" placeholder="" class="input-xlarge" value="" />
+                <p class="help-block">{{ _("Please confirm password") }}</p>
+                {% if 'password_confirm' in errs %}
+                    <ul>
+                        {% for err in errs['password_confirm'] %}
+                            <li>{{ err }}</li>
+                        {% end %}
+                    </ul>
+                {% end %}
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <button class="btn btn-success">{{ _("Register") }}</button>
+            </div>
+        </div>
+    </fieldset>
+
+    {% raw xsrf_form_html() %}
+</form>
+
+{% end %}

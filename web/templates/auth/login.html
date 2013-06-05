@@ -1,0 +1,40 @@
+{% extends ../base.html %}
+{% block content %}
+
+<form class="form-horizontal" action="" method="POST">
+    <fieldset>
+        <div id="legend">
+            <legend class="">{{ _("Login") }}</legend>
+        </div>
+
+        {% if incorrect_login %}
+            <div class="alert alert-error">
+                {{ _("Incorrect username or password") }}
+            </div>
+        {% end %}
+
+        <div class="control-group">
+            <label class="control-label" for="username">{{ _("Username") }}</label>
+            <div class="controls">
+                <input type="text" id="username" name="username" placeholder="" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="password">{{ _("Password") }}</label>
+            <div class="controls">
+                <input type="password" id="password" name="password" placeholder="" class="input-xlarge">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <div class="controls">
+                <button class="btn btn-success">{{ _("Login") }}</button>
+            </div>
+        </div>
+    </fieldset>
+
+    {% raw xsrf_form_html() %}
+</form>
+
+{% end %}
