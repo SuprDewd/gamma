@@ -1,5 +1,5 @@
 from base import BaseHandler
-from pagination import PaginationModule
+from ui_modules import PaginationModule
 import datetime
 from models import Problem, Submission
 
@@ -12,16 +12,16 @@ class ProblemViewModel:
 
 class AllProblemsHandler(BaseHandler):
     def get(self, cur_page=None):
-        problems = []
-        for p in self.application.db.query(Problem).filter(Problem.public).all():
-            correct_submissions = self.application.db.query(Submission).filter_by(problem_id=p.id, verdict='AC').count()
-            total_submissions = self.application.db.query(Submission).filter_by(problem_id=p.id).count()
-            problems.append(ProblemViewModel(p.id, p.name, correct_submissions, total_submissions))
-        cur_page = int(cur_page) if cur_page else 0
-        items_per_page = 10
-        page_location = '/problems/%d/'
+        sess = self.db()
+        problems = [ ProblemViewModel(p.id, p.name,
+                                      p.correct_submission_count(sess),
+                                      p.total_submission_count(sess))
+                     for p in Problem.get_public(sess) ]
 
-        return self.render('all_problems.html',
+        cur_page = int(cur_page) if cur_page else 0
+        items_per_page = 10 # TODO: extract to config
+        page_location = '/problems/%d/' # TODO: use named routes somehow
+        return self.render('problem/all.html',
                     cur_page=cur_page,
                     item_count=len(problems),
                     items_per_page=items_per_page,

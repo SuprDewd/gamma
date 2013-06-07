@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Enum
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from datetime import datetime
+import datetime
 import util
 import re
 
@@ -24,7 +24,7 @@ class User(Base, DefaultTable):
     name = Column(String)
     institute = Column(String)
     api_key = Column(String)
-    registered = Column(DateTime, default=datetime.now)
+    registered = Column(DateTime, default=datetime.datetime.now)
     active = Column(Boolean, default=False)
     confirm_token = Column(String, default=util.generate_confirm_token, unique=True)
     # main_team_id = Column(Integer, ForeignKey('Team.id'))
@@ -77,18 +77,51 @@ class TeamInvitation(Base, DefaultTable):
 class Contest(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    public = Column(Boolean, nullable=False, default=False)
     start_time = Column(DateTime)
-    length = Column(Integer) # contest length in minutes
+    duration = Column(Integer) # contest duration in minutes
     registration_start = Column(DateTime)
     registration_end = Column(DateTime)
     freeze_scoreboard = Column(Integer) # minutes after start_time
     max_team_size = Column(Integer, nullable=False, default=1)
 
+    def after_start(self, cur_time=None):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.start_time <= cur_time
+
+    def after_end(self, cur_time=None):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.start_time + datetime.timedelta(0, 60*self.duration) < cur_time
+
+    def is_running(self, cur_time):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.after_start(cur_time) and not self.after_end(cur_time)
+
+    def after_registration_start(self, cur_time=None):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.registration_start and self.registration_start < cur_time
+
+    def after_registration_end(self, cur_time=None):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.registration_end and self.registration_end < cur_time
+
+    def is_registration_open(self, cur_time=None):
+        cur_time = cur_time or datetime.datetime.now()
+        return self.after_registration_start(cur_time) and not self.after_registration_end(cur_time)
+
+    def is_registered(self, sess, user):
+        # TODO: return True if there exists a registered team which user belongs to
+        return False
+
+    @staticmethod
+    def get_public(db):
+        return db.query(Contest).filter(Contest.public).all()
+
 
 class Registration(Base, DefaultTable):
     team_id = Column(Integer, ForeignKey('Team.id'), primary_key=True)
     contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
-    created = Column(DateTime, default=datetime.now, nullable=False)
+    created = Column(DateTime, default=datetime.datetime.now, nullable=False)
 
 
 class ProgrammingLanguage(Base, DefaultTable):
@@ -110,12 +143,22 @@ class Problem(Base, DefaultTable):
     time_limit = Column(Integer) # milliseconds
     memory_limit = Column(Integer) # bytes
 
+    def total_submission_count(self, db):
+        return db.query(Submission).filter_by(problem_id=self.id).count()
+
+    def correct_submission_count(self, db):
+        return db.query(Submission).filter_by(problem_id=self.id, verdict='AC').count()
+
+    @staticmethod
+    def get_public(db):
+        return db.query(Problem).filter(Problem.public).all()
+
 
 class Submission(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
     problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
-    submitted = Column(DateTime, default=datetime.now, nullable=False)
+    submitted = Column(DateTime, default=datetime.datetime.now, nullable=False)
     verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='submission_verdict'))
 
 
@@ -124,7 +167,7 @@ class ContestSubmission(Base, DefaultTable):
     team_id = Column(Integer, ForeignKey('Team.id'), nullable=False)
     problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
     contest_id = Column(Integer, ForeignKey('Contest.id'), nullable=False)
-    submitted = Column(Integer, default=datetime.now, nullable=False) # minutes after contest.start_time
+    submitted = Column(Integer, default=datetime.datetime.now, nullable=False) # minutes after contest.start_time
     verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='contest_submission_verdict'))
 
 
@@ -144,7 +187,7 @@ class ProblemComment(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
     problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
-    created = Column(DateTime, default=datetime.now, nullable=False)
+    created = Column(DateTime, default=datetime.datetime.now, nullable=False)
     content = Column(Text, nullable=False)
 
 
@@ -159,7 +202,7 @@ class Message(Base, DefaultTable):
     user_from_id = Column(Integer, ForeignKey('User.id'))
     content = Column(Text, nullable=False)
     read = Column(Boolean, default=False, nullable=False)
-    sent = Column(DateTime, default=datetime.now, nullable=False)
+    sent = Column(DateTime, default=datetime.datetime.now, nullable=False)
 
 
 class Permission(Base, DefaultTable):

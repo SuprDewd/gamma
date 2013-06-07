@@ -1,0 +1,93 @@
+{% extends ../base.html %}
+{% block content %}
+
+{% if upcoming_contests %}
+    <table class="table table-hover table-striped table-bordered">
+        <caption>{{ _("Upcoming contests") }}</caption>
+        <thead>
+            <tr>
+                <th>{{ _("Name") }}</th>
+                <th>{{ _("Start") }}</th>
+                <th>{{ _("Duration") }}</th>
+                <th>{{ _("Registration") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contest in upcoming_contests %}
+                <tr>
+                    <td>{{ contest.name }}</td>
+                    <td>{{ format_date(contest.start_time) }}</td>
+                    <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                    {% if is_current_user_registered(contest) %}
+                        {% if contest.after_registration_end() %}
+                            <td></td>
+                        {% elif contest.after_registration_start() %}
+                            <td></td>
+                        {% else %}
+                            <td></td>
+                        {% end %}
+                    {% else %}
+                        {% if contest.after_registration_end() %}
+                            <td>{{ _("Closed") }}</td>
+                        {% elif contest.after_registration_start() %}
+                            <td><a href="/contest/{{ contest.id }}/register/">{{ _("Contest Register") }}</a></td>
+                        {% elif contest.registration_start %}
+                            <td>{{ _("Opens") }} {{ format_date(contest.registration_start) }}</td>
+                        {% else %}
+                            <td>{{ _("Not open yet") }}</td>
+                        {% end %}
+                    {% end %}
+                </tr>
+            {% end %}
+        </tbody>
+    </table>
+{% end %}
+
+{% if current_contests %}
+    <table class="table table-hover table-striped table-bordered">
+        <caption>{{ _("Current contests") }}</caption>
+        <thead>
+            <tr>
+                <th>{{ _("Name") }}</th>
+                <th>{{ _("Start") }}</th>
+                <th>{{ _("Duration") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contest in current_contests %}
+                <tr>
+                    <td>{{ contest.name }}</td>
+                    <td>{{ format_date(contest.start_time) }}</td>
+                    <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                </tr>
+            {% end %}
+        </tbody>
+    </table>
+{% end %}
+
+<table class="table table-hover table-striped table-bordered">
+    <caption>{{ _("Past contests") }}</caption>
+    <thead>
+        <tr>
+            <th>{{ _("Name") }}</th>
+            <th>{{ _("Start") }}</th>
+            <th>{{ _("Duration") }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for contest in past_contests %}
+            <tr>
+                <td>{{ contest.name }}</td>
+                <td>{{ format_date(contest.start_time) }}</td>
+                <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+
+{% module Pagination(item_count=item_count,
+                     cur_page=cur_page,
+                     items_per_page=items_per_page,
+                     page_location=page_location) %}
+
+{% end %}

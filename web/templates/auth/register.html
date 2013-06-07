@@ -6,7 +6,7 @@
 <form class="form-horizontal" action="" method="POST">
     <fieldset>
         <div id="legend">
-            <legend class="">{{ _('Register') }}</legend>
+            <legend class="">{{ _('User Register') }}</legend>
         </div>
         <div class="control-group">
             <label class="control-label" for="username">{{ _('Username') }}</label>
@@ -24,10 +24,10 @@
         </div>
 
         <div class="control-group">
-            <label class="control-label" for="email">{{ _("E-mail") }}</label>
+            <label class="control-label" for="email">{{ _("Email") }}</label>
             <div class="controls">
                 <input type="text" id="email" name="email" placeholder="" class="input-xlarge" value="{{ email if email else "" }}" />
-                <p class="help-block">{{ _("Please provide your E-mail") }}</p>
+                <p class="help-block">{{ _("Please provide your email") }}</p>
                 {% if 'email' in errs %}
                     <ul>
                         {% for err in errs['email'] %}
@@ -100,7 +100,7 @@
 
         <div class="control-group">
             <div class="controls">
-                <button class="btn btn-success">{{ _("Register") }}</button>
+                <button class="btn btn-success">{{ _("User Register") }}</button>
             </div>
         </div>
     </fieldset>

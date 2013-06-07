@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from config import *
 from handlers import *
 import models
-import pagination # TODO: get rid of this import
+import ui_modules
 import test_data
 
 class GammaWeb(tornado.web.Application):
@@ -26,6 +26,7 @@ class GammaWeb(tornado.web.Application):
             url('/contests/?',                                   AllContestsHandler),
             url('/contests/([0-9]+)/?',                          AllContestsHandler),
             url('/contest/([0-9]+)/?',                           ContestHandler),
+            url('/contest/([0-9]+)/register/?',                  ContestRegisterHandler),
             url('/contest/([0-9]+)/scoreboard/?',                ScoreboardHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/?',           ProblemHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/comments/?',  CommentsHandler),
@@ -56,7 +57,7 @@ class GammaWeb(tornado.web.Application):
             template_path = os.path.join(cur_dir, 'templates'),
             xsrf_cookies = True,
             cookie_secret = 'fP#91c.e+8jMqie+fZN!Oc*LABaMGl/PSUyTZhgx87+=@yepwcXN.kW',
-            ui_modules = { 'Pagination': pagination.PaginationModule }
+            ui_modules = ui_modules.modules,
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
@@ -70,6 +71,11 @@ class GammaWeb(tornado.web.Application):
 
         if options.local:
             test_data.add_test_data(self.db)
+
+    def _init_db(self):
+        sess = self.db()
+        # TODO: initialize db
+
 
 def main():
     tornado.options.parse_command_line()

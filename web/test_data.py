@@ -4,15 +4,16 @@ import random
 
 def add_test_data(db):
 
-    cnt = 30
-    splt = cnt - 2
+    cnt = 100
+    splt = cnt - 20
 
     for i in range(cnt):
         db.add(Contest(name='Test Contest %d' % i,
+                       public=True,
                        start_time=datetime.datetime.now() - datetime.timedelta(splt) + datetime.timedelta(i),
-                       length=2 * 60 + 30,
-                       registration_start=datetime.datetime.now() - datetime.timedelta(splt) + datetime.timedelta(i-2),
-                       registration_end=datetime.datetime.now() - datetime.timedelta(splt) + datetime.timedelta(i-2)))
+                       duration=2 * 60 + 30,
+                       registration_start=datetime.datetime.now() - datetime.timedelta(splt) + datetime.timedelta(i-10),
+                       registration_end=datetime.datetime.now() - datetime.timedelta(splt) + datetime.timedelta(i-1)))
 
     db.commit()
 

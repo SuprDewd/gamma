@@ -5,7 +5,6 @@ DIR_NAME = os.path.dirname(__file__)
 
 sys.path.append(DIR_NAME)
 sys.path.append(os.path.join(DIR_NAME, 'libs'))
-sys.path.append(os.path.join(DIR_NAME, 'ui_modules')) # TODO: get rid of this line
 
 from tornado.options import define
 

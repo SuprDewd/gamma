@@ -1,0 +1,28 @@
+{% extends ../base.html %}
+{% block content %}
+
+<table class="table table-hover table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>{{ _("Problem") }}</th>
+            <th>{{ _("Solved") }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for problem in problems %}
+        <tr>
+            <td>{{ problem.id }}</td>
+            <td><a href="/problem/{{ problem.id }}/">{{ problem.name }}</a></td>
+            <td>{{ problem.correct_submissions }}/{{ problem.total_submissions }}</td>
+        </tr>
+        {% end %}
+    </tbody>
+</table>
+
+{% module Pagination(item_count=item_count,
+                     cur_page=cur_page,
+                     items_per_page=items_per_page,
+                     page_location=page_location) %}
+
+{% end %}

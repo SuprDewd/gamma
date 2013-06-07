@@ -1,0 +1,9 @@
+<div class="pagination pagination-centered">
+    <ul>
+        <li class="{{ "" if 0 <= cur_page-1 else "disabled" }}"><a href="{{ (page_location % (cur_page-1)) if 0 <= cur_page-1 else "javascript:void(0)" }}">&laquo;</a></li>
+        {% for i in range(total_pages) %}
+            <li class="{{ "active" if i == cur_page else "" }}"><a href="{{ page_location % i }}">{{ i+1 }}</a></li>
+        {% end %}
+        <li class="{{ "" if cur_page+1 < total_pages else "disabled" }}"><a href="{{ (page_location % (cur_page+1)) if cur_page+1 < total_pages else "javascript:void(0)" }}">&raquo;</a></li>
+    </ul>
+</div>
