@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/bootstrap.cerulean.min.css" rel="stylesheet" />
         <style>
             body {
                 padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -66,19 +66,20 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="brand" href="/">gamma</a>
+                    <!-- <a class="brand" href="/">{{ _("gamma") }}</a> -->
+                    <a class="brand" style="font-size:24px" href="/">&gamma;</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="/">{{ _('Home') }}</a></li>
+                            <!-- <li class="active"><a href="/">{{ _('Home') }}</a></li> -->
                             <li><a href="/contests/">{{ _('Contests') }}</a></li>
                             <li><a href="/problems/">{{ _('Problems') }}</a></li>
                         </ul>
                         <ul class="nav pull-right">
                             {% if current_user %}
-                                <li><a href="/user/logout/"><i class="icon-off"></i>Skrá út</a></li>
+                                <li><a href="/user/logout/"><i class="icon-off"></i> {{ _("Logout") }}</a></li>
                             {% else %}
-                                <li><a href="/user/login/"><i class="icon-user"></i> Skrá inn</a></li>
-                                <li><a href="/user/register/">Nýskrá</a></li>
+                                <li><a href="/user/login/"><i class="icon-user"></i> {{ _("Login") }}</a></li>
+                                <li><a href="/user/register/">{{ _("User Register") }}</a></li>
                             {% end %}
                         </ul>
                     </div>
