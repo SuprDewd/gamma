@@ -1,3 +1,4 @@
+from config import *
 import os
 import logging
 import tornado.web
@@ -8,7 +9,6 @@ from tornado.options import options
 from tornado.web import url
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from config import *
 from handlers import *
 import models
 import ui_modules
