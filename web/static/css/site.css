@@ -1,0 +1,56 @@
+body {
+    padding-top: 75px;
+}
+
+#nav .logo {
+    font-family: serif;
+    font-size: 24px;
+}
+
+table.contests th, table.contests td,
+table.registered th, table.registered td {
+    text-align: center;
+}
+
+/*
+#scoreboard td.ac {
+    background-color: #DFF0D1;
+}
+
+#scoreboard td.wa {
+    background-color: #F2DEDE;
+}
+
+#scoreboard th.problem {
+    width: 70px;
+}
+
+#scoreboard .team {
+    width: 150px;
+}
+
+#scoreboard th.problem, #scoreboard td.problem {
+    text-align: center;
+}
+
+#scoreboard .penalty {
+    width: 50px;
+}
+
+#scoreboard .penalty {
+    text-align: center;
+}
+
+#scoreboard .points {
+    width: 50px;
+}
+
+#scoreboard .points {
+    text-align: center;
+}
+
+#scoreboard .rank {
+    text-align: center;
+    width: 40px;
+}
+*/

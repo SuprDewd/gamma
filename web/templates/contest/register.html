@@ -1,0 +1,24 @@
+{% extends ../base.html %}
+{% block content %}
+
+<h3 style="margin-bottom:0px">{{ contest.name }}</h3>
+<h5 style="margin:-4px 0 20px 8px">{{ _("registration") }}</h5>
+
+{% if already_registered %}
+    {# TODO: display more info and perhaps unregister #}
+    <h4>{{ _("You are already registered") }}</h4>
+{% else %}
+    <form action="" method="post">
+        <select name="team_id" id="team_id">
+            {% for team in teams %}
+                <option value="{{ team.id }}">{{ team.name }}</option>
+            {% end %}
+        </select>
+
+        <input type="submit" value="register" />
+
+        {% raw xsrf_form_html() %}
+    </form>
+{% end %}
+
+{% end %}

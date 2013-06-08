@@ -1,0 +1,28 @@
+{% extends ../base.html %}
+{% block content %}
+
+<h3 style="margin-bottom:0px">{{ contest.name }}</h3>
+<h5 style="margin:-4px 0 20px 8px">{{ _("registered teams") }}</h5>
+
+{% if registered %}
+    <table class="table table-hover table-striped table-bordered registered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{{ _("Team") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i, team in enumerate(registered) %}
+                <tr>
+                    <td>{{ i+1 }}</td>
+                    <td>{{ team.name }}</td>
+                </tr>
+            {% end %}
+        </tbody>
+    </table>
+{% else %}
+    <h4>{{ _("No registered teams") }}</h4>
+{% end %}
+
+{% end %}
