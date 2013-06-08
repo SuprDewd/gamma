@@ -1,0 +1,26 @@
+{% extends ../base.html %}
+{% block content %}
+
+<table class="table table-hover table-striped table-bordered contest_problems">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>{{ _("Name") }}</th>
+            <!-- <th class="contest_name">{{ _("Name") }}</th> -->
+            <!-- <th class="contest_start">{{ _("Start") }}</th> -->
+            <!-- <th class="contest_duration">{{ _("Duration") }}</th> -->
+            <!-- <th class="contest_standings"></th> -->
+            <!-- <th class="contest_registration"></th> -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for problem in problems %}
+            <tr>
+                <td>XXX</td>
+                <td>{{ problem.Name }}</td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+
+{% end %}

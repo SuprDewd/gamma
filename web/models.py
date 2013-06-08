@@ -84,6 +84,7 @@ class Contest(Base, DefaultTable):
     registration_end = Column(DateTime)
     freeze_scoreboard = Column(Integer) # minutes after start_time
     max_team_size = Column(Integer, nullable=False, default=1)
+    open_for_guests = Column(Boolean, nullable=False, default=True)
 
     def after_start(self, cur_time=None):
         cur_time = cur_time or datetime.datetime.now()

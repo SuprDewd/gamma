@@ -29,7 +29,7 @@ class GammaWeb(tornado.web.Application):
             url('/contest/([0-9]+)/?',                           ContestHandler),
             url('/contest/([0-9]+)/register/?',                  ContestRegisterHandler),
             url('/contest/([0-9]+)/registered/?',                ContestRegisteredHandler),
-            url('/contest/([0-9]+)/scoreboard/?',                ScoreboardHandler),
+            url('/contest/([0-9]+)/standings/?',                 ContestStandingsHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/?',           ProblemHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/comments/?',  CommentsHandler),
 
