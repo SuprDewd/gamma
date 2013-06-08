@@ -1,7 +1,7 @@
 from tornado.web import authenticated
 from util import not_authenticated
 from base import BaseHandler
-from models import User, Team
+from models import User, Team, TeamMember
 import util
 import time
 
@@ -73,6 +73,12 @@ class RegisterHandler(BaseHandler):
                             leader_id=user.id)
 
                 sess.add(team)
+                sess.flush()
+
+                team_member = TeamMember(user_id=user.id,
+                                         team_id=team.id)
+
+                sess.add(team_member)
                 sess.commit()
 
                 # TODO: send email with confirmation key

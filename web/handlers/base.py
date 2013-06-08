@@ -16,7 +16,12 @@ class BaseHandler(RequestHandler):
         return None
 
     def get_template_namespace(self):
-        return RequestHandler.get_template_namespace(self)
+        namespace = RequestHandler.get_template_namespace(self)
+        namespace.update(dict(
+            db=self.db
+        ))
+
+        return namespace
 
     @property
     def db(self):

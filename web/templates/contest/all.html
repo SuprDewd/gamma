@@ -1,85 +1,90 @@
 {% extends ../base.html %}
 {% block content %}
 
-{% if upcoming_contests %}
-    <table class="table table-hover table-striped table-bordered">
-        <caption>{{ _("Upcoming contests") }}</caption>
-        <thead>
-            <tr>
-                <th>{{ _("Name") }}</th>
-                <th>{{ _("Start") }}</th>
-                <th>{{ _("Duration") }}</th>
-                <th>{{ _("Registration") }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for contest in upcoming_contests %}
-                <tr>
-                    <td>{{ contest.name }}</td>
-                    <td>{{ format_date(contest.start_time) }}</td>
-                    <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
-                    {% if is_current_user_registered(contest) %}
-                        {% if contest.after_registration_end() %}
-                            <td></td>
-                        {% elif contest.after_registration_start() %}
-                            <td></td>
-                        {% else %}
-                            <td></td>
-                        {% end %}
-                    {% else %}
-                        {% if contest.after_registration_end() %}
-                            <td>{{ _("Closed") }}</td>
-                        {% elif contest.after_registration_start() %}
-                            <td><a href="/contest/{{ contest.id }}/register/">{{ _("Contest Register") }}</a></td>
-                        {% elif contest.registration_start %}
-                            <td>{{ _("Opens") }} {{ format_date(contest.registration_start) }}</td>
-                        {% else %}
-                            <td>{{ _("Not open yet") }}</td>
-                        {% end %}
-                    {% end %}
-                </tr>
-            {% end %}
-        </tbody>
-    </table>
-{% end %}
-
 {% if current_contests %}
-    <table class="table table-hover table-striped table-bordered">
+    <table class="table table-hover table-striped table-bordered contests contests_current">
         <caption>{{ _("Current contests") }}</caption>
         <thead>
             <tr>
-                <th>{{ _("Name") }}</th>
-                <th>{{ _("Start") }}</th>
-                <th>{{ _("Duration") }}</th>
+                <th class="contest_name">{{ _("Name") }}</th>
+                <th class="contest_start">{{ _("Start") }}</th>
+                <th class="contest_duration">{{ _("Duration") }}</th>
             </tr>
         </thead>
         <tbody>
             {% for contest in current_contests %}
                 <tr>
-                    <td>{{ contest.name }}</td>
-                    <td>{{ format_date(contest.start_time) }}</td>
-                    <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                    <td class="contest_name">{{ contest.name }}</td>
+                    <td class="contest_start">{{ locale.format_date(contest.start_time) }}</td>
+                    <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
                 </tr>
             {% end %}
         </tbody>
     </table>
 {% end %}
 
-<table class="table table-hover table-striped table-bordered">
+{% if upcoming_contests %}
+    <table class="table table-hover table-striped table-bordered contests contests_upcoming">
+        <caption>{{ _("Upcoming contests") }}</caption>
+        <thead>
+            <tr>
+                <th class="contest_name">{{ _("Name") }}</th>
+                <th class="contest_start">{{ _("Start") }}</th>
+                <th class="contest_duration">{{ _("Duration") }}</th>
+                <th class="contest_registration">{{ _("Registration") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contest in upcoming_contests %}
+                <tr>
+                    <td class="contest_name">{{ contest.name }}</td>
+                    <td class="contest_start">{{ locale.format_date(contest.start_time) }}</td>
+                    <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                    <td class="contest">
+                        {% if current_user and contest.is_registered(db, current_user) %}
+                            {% if contest.after_registration_end() %}
+                            {% elif contest.after_registration_start() %}
+                                {{ _("You are registered") }}
+                            {% else %}
+                            {% end %}
+                        {% else %}
+                            {% if contest.after_registration_end() %}
+                                {{ _("Closed") }}
+                            {% elif contest.after_registration_start() %}
+                                <a href="/contest/{{ contest.id }}/register/">{{ _("Contest Register") }}</a>
+                            {% elif contest.registration_start %}
+                                {{ _("Opens") }} {{ locale.format_date(contest.registration_start) }}
+                            {% else %}
+                                {{ _("Not open yet") }}
+                            {% end %}
+                        {% end %}
+
+                        {% set registered = contest.registration_count(db) %}
+                        {% if (True or registered > 0) and contest.after_registration_start() %}
+                            | <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ registered }}</a>
+                        {% end %}
+                    </td>
+                </tr>
+            {% end %}
+        </tbody>
+    </table>
+{% end %}
+
+<table class="table table-hover table-striped table-bordered contests contests_past">
     <caption>{{ _("Past contests") }}</caption>
     <thead>
         <tr>
-            <th>{{ _("Name") }}</th>
-            <th>{{ _("Start") }}</th>
-            <th>{{ _("Duration") }}</th>
+            <th class="contest_name">{{ _("Name") }}</th>
+            <th class="contest_start">{{ _("Start") }}</th>
+            <th class="contest_duration">{{ _("Duration") }}</th>
         </tr>
     </thead>
     <tbody>
         {% for contest in past_contests %}
             <tr>
-                <td>{{ contest.name }}</td>
-                <td>{{ format_date(contest.start_time) }}</td>
-                <td>{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                <td class="contest_name">{{ contest.name }}</td>
+                <td class="contest_start">{{ locale.format_day(contest.start_time, dow=False) }}</td>
+                <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
             </tr>
         {% end %}
     </tbody>

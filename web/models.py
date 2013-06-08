@@ -110,8 +110,10 @@ class Contest(Base, DefaultTable):
         return self.after_registration_start(cur_time) and not self.after_registration_end(cur_time)
 
     def is_registered(self, sess, user):
-        # TODO: return True if there exists a registered team which user belongs to
-        return False
+        return sess.query(Registration).join(Team, Registration.team_id == Team.id).join(TeamMember, Team.id == TeamMember.team_id).filter(Registration.contest_id == self.id).filter(TeamMember.user_id == user.id).count() > 0
+
+    def registration_count(self, sess):
+        return sess.query(Registration).filter_by(contest_id=self.id).count()
 
     @staticmethod
     def get_public(db):

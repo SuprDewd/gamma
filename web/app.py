@@ -28,6 +28,7 @@ class GammaWeb(tornado.web.Application):
             url('/contests/([0-9]+)/?',                          AllContestsHandler),
             url('/contest/([0-9]+)/?',                           ContestHandler),
             url('/contest/([0-9]+)/register/?',                  ContestRegisterHandler),
+            url('/contest/([0-9]+)/registered/?',                ContestRegisteredHandler),
             url('/contest/([0-9]+)/scoreboard/?',                ScoreboardHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/?',           ProblemHandler),
             url('/contest/([0-9]+)/problem/([^/]+)/comments/?',  CommentsHandler),
@@ -59,6 +60,7 @@ class GammaWeb(tornado.web.Application):
             xsrf_cookies = True,
             cookie_secret = 'fP#91c.e+8jMqie+fZN!Oc*LABaMGl/PSUyTZhgx87+=@yepwcXN.kW',
             ui_modules = ui_modules.modules,
+            login_url = '/user/login/',
         )
 
         tornado.web.Application.__init__(self, handlers, **settings)
