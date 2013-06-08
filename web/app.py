@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 from config import *
 import os
 import logging
