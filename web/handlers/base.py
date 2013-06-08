@@ -15,6 +15,9 @@ class BaseHandler(RequestHandler):
                 self.clear_cookie('user')
         return None
 
+    def get_template_namespace(self):
+        return RequestHandler.get_template_namespace(self)
+
     @property
     def db(self):
         return self.application.db
