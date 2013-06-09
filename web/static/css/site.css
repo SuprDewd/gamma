@@ -8,7 +8,7 @@ body {
 }
 
 table.contests th, table.contests td,
-table.registered th, table.registered td
+table.registered th, table.registered td,
 table.contest_problems th, table.contest_problems td {
     text-align: center;
 }

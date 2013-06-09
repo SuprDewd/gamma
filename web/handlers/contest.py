@@ -54,7 +54,7 @@ class ContestRegisterHandler(BaseHandler):
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         team_id = int(self.get_argument('team_id'))
-        if not contest.is_registered(sess, self.current_user) and sess.query(TeamMember).filter_by(team_id=team_id, user_id=self.current_user.id).count() > 0 and sess.query(Team).filter_by(id=team_id, locked=True).count() > 0:
+        if not contest.is_registered(sess, self.current_user) and sess.query(TeamMember).filter_by(team_id=team_id, user_id=self.current_user.id).count() > 0 and sess.query(Team).filter_by(id=team_id, locked=True).count() > 0 and (contest.max_team_size == None or sess.query(TeamMember).filter_by(team_id=team_id).count() <= contest.max_team_size):
             sess.add(Registration(team_id=team_id, contest_id=contest.id))
             sess.commit()
         else:

@@ -73,7 +73,7 @@ class GammaWeb(tornado.web.Application):
             logger.setLevel(logging.DEBUG)
 
         if options.local:
-            test_data.add_test_data(self.db)
+            test_data.add_test_data(self, self.db)
 
     def _init_db(self):
         sess = self.db()

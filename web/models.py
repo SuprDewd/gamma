@@ -83,7 +83,7 @@ class Contest(Base, DefaultTable):
     registration_start = Column(DateTime)
     registration_end = Column(DateTime)
     freeze_scoreboard = Column(Integer) # minutes after start_time
-    max_team_size = Column(Integer, nullable=False, default=1)
+    max_team_size = Column(Integer, default=1)
     open_for_guests = Column(Boolean, nullable=False, default=True)
 
     def after_start(self, cur_time=None):
@@ -92,7 +92,7 @@ class Contest(Base, DefaultTable):
 
     def after_end(self, cur_time=None):
         cur_time = cur_time or datetime.datetime.now()
-        return self.start_time + datetime.timedelta(0, 60*self.duration) < cur_time
+        return self.duration != None and self.start_time + datetime.timedelta(0, 60*self.duration) < cur_time
 
     def is_running(self, cur_time):
         cur_time = cur_time or datetime.datetime.now()
@@ -155,6 +155,13 @@ class Problem(Base, DefaultTable):
     @staticmethod
     def get_public(db):
         return db.query(Problem).filter(Problem.public).all()
+
+
+class Test(Base, DefaultTable):
+    id = Column(Integer, primary_key=True)
+    problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
+    input = Column(Text, nullable=False)
+    output = Column(Text, nullable=False)
 
 
 class Submission(Base, DefaultTable):

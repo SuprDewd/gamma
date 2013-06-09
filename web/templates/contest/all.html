@@ -24,7 +24,11 @@
                         {% end %}
                     </td>
                     <td class="contest_start">{{ locale.format_date(contest.start_time) }}</td>
-                    <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                    <td class="contest_duration">
+                        {% if contest.duration != None %}
+                            {{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}
+                        {% end %}
+                    </td>
                     <td class="contest_standings"><a href="/contest/{{ contest.id }}/standings/">{{ _("Standings") }}</a></td>
                     <td class="contest_registration">
                         {% set need_separator = False %}
@@ -64,7 +68,11 @@
                 <tr>
                     <td class="contest_name">{{ contest.name }}</td>
                     <td class="contest_start">{{ locale.format_date(contest.start_time) }}</td>
-                    <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                    <td class="contest_duration">
+                        {% if contest.duration != None %}
+                            {{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}
+                        {% end %}
+                    </td>
                     <td class="contest_registration">
                         {% if current_user and contest.is_registered(db, current_user) %}
                             {{ _("You are registered") }}
@@ -107,7 +115,11 @@
             <tr>
                 <td class="contest_name">{{ contest.name }}</td>
                 <td class="contest_start">{{ locale.format_day(contest.start_time, dow=False) }}</td>
-                <td class="contest_duration">{{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}</td>
+                <td class="contest_duration">
+                    {% if contest.duration != None %}
+                        {{ "%02d:%02d" % (contest.duration/60, contest.duration%60) }}
+                    {% end %}
+                </td>
                 <td class="contest_standings"><a href="/contest/{{ contest.id }}/standings/">{{ _("Final standings") }}</a></td>
                 <td class="contest_registration">
                     <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ contest.registration_count(db) }}</a>

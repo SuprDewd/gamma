@@ -17,7 +17,7 @@
         {% for problem in problems %}
             <tr>
                 <td>XXX</td>
-                <td>{{ problem.Name }}</td>
+                <td><a href="/contest/{{ contest.id }}/problem/{{ problem.id }}/">{{ problem.name }}</a></td> {# TODO: use short_id everywhere #}
             </tr>
         {% end %}
     </tbody>
