@@ -84,5 +84,5 @@ class ContestStandingsHandler(BaseHandler):
         sess = self.db
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
-        self.render('contest/standings.html', contest=contest)
+        self.render('contest/standings.html', contest=contest, standings=contest.get_standings(sess))
 

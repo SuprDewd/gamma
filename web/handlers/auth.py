@@ -18,7 +18,7 @@ class LoginHandler(BaseHandler):
         username = self.get_argument('username')
         password = self.get_argument('password')
         next = self.get_argument('next', '/') # TODO: use named routes
-        user = sess.query(User).filter_by(username=username, password_hash=util.hash_password(username, password, self.application.settings['cookie_secret']), active=True).first()
+        user = User.login(sess, username, password, self.application.settings['cookie_secret'])
 
         if user:
             # XXX: is this safe?
@@ -56,46 +56,36 @@ class RegisterHandler(BaseHandler):
         password = self.get_argument('password')
         password_confirm = self.get_argument('password_confirm')
 
-        errs = User.validate(sess, self.locale, username, email, full_name, institute, password, password_confirm)
+        errs = User.validate(sess, self.locale,
+                username=username,
+                email=email,
+                name=full_name,
+                institute=institute,
+                password=password,
+                password_confirm=password_confirm)
 
         if not errs:
-            try:
-                user = User(username=username,
-                            password_hash=util.hash_password(username, password, self.application.settings['cookie_secret']),
-                            email=email,
-                            name=full_name,
-                            institute=institute)
+            user = User.register(
+                    db=sess,
+                    username=username,
+                    password=password,
+                    email=email,
+                    name=full_name,
+                    institute=institute)
 
-                sess.add(user)
-                sess.flush()
+            # TODO: send email with confirmation key
+            user.active = True
+            sess.commit()
 
-                team = Team(name=username,
-                            leader_id=user.id)
-
-                sess.add(team)
-                sess.flush()
-
-                team_member = TeamMember(user_id=user.id,
-                                         team_id=team.id)
-
-                sess.add(team_member)
-                sess.commit()
-
-                # TODO: send email with confirmation key
-                user.active = True
-                sess.commit()
-
-                # TODO: pass on the email of the newly created user
-                self.redirect('/user/register/successful/') # TODO: use named routes
-            except:
-                sess.rollback()
-                raise
+            # TODO: pass on the email of the newly created user
+            self.redirect('/user/register/successful/') # TODO: use named routes
         else:
-            self.render('auth/register.html', errs=errs,
-                                         username=username,
-                                         email=email,
-                                         full_name=full_name,
-                                         institute=institute)
+            self.render('auth/register.html',
+                    errs=errs,
+                    username=username,
+                    email=email,
+                    full_name=full_name,
+                    institute=institute)
 
 
 class RegisterSuccessfulHandler(BaseHandler):

@@ -1,0 +1,84 @@
+{% extends ../base.html %}
+{% block content_fluid %}
+
+<h1>Standings</h1>
+<table class="table table-bordered table-striped" id="scoreboard">
+    <thead>
+        <tr>
+            <th class="rank">#</th>
+            <th class="team">Team</th>
+            <th class="points">Points</th>
+            <th class="penalty">Penalty</th>
+            {% for problem in contest.problems %}
+                <th class="problem">{{ problem.short_id }}</th>
+            {% end %}
+            <!-- <th class="problem">A</th> -->
+            <!-- <th class="problem">B</th> -->
+            <!-- <th class="problem">C</th> -->
+            <!-- <th class="problem">D</th> -->
+            <!-- <th class="problem">E</th> -->
+            <!-- <th class="problem">F</th> -->
+            <!-- <th class="problem">G</th> -->
+            <!-- <th class="problem">H</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for i, row in enumerate(standings) %}
+            <tr>
+                <td class="rank">{{ i+1 }}</td>
+                <td class="team">{{ row['team'].name }}</td>
+                <td class="points">{{ row['points'] }}</td>
+                <td class="penalty">{{ '%2d:%2d' % (row['penalty']/60, row['penalty']%60) }}</td>
+                {% for problem in row['problems'] %}
+                    {% if problem[0] is None and problem[1] == 0 %}
+                        <td class="problem"></td>
+                    {% elif problem[0] is None and problem[1] > 0 %}
+                        <td class="problem wa">--:-- ({{ problem[1] }})</td>
+                    {% else %}
+                        <td class="problem ac">{{ '%2d:%2d' % (problem[0]/60, problem[0]%60) }} ({{ problem[1] }})</td>
+                    {% end %}
+                {% end %}
+
+                <!-- <td class="problem"></td> -->
+                <!-- <td class="problem"></td> -->
+                <!-- <td class="problem ac">00:13 (0)</td> -->
+                <!-- <td class="problem"></td> -->
+                <!-- <td class="problem wa">&#45;&#45;:&#45;&#45; (1)</td> -->
+                <!-- <td class="problem"></td> -->
+                <!-- <td class="problem"></td> -->
+                <!-- <td class="problem"></td> -->
+            </tr>
+        {% end %}
+
+        <!-- <tr> -->
+        <!--     <td class="rank">1</td> -->
+        <!--     <td class="team">SuprDewd</td> -->
+        <!--     <td class="points">1</td> -->
+        <!--     <td class="penalty">00:13</td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem ac">00:13 (0)</td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem wa">&#45;&#45;:&#45;&#45; (1)</td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!-- </tr> -->
+        <!-- <tr> -->
+        <!--     <td class="rank">2</td> -->
+        <!--     <td class="team">Petr</td> -->
+        <!--     <td class="points">1</td> -->
+        <!--     <td class="penalty">00:25</td> -->
+        <!--     <td class="problem ac">00:05 (1)</td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem wa">&#45;&#45;:&#45;&#45; (2)</td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!--     <td class="problem"></td> -->
+        <!-- </tr> -->
+    </tbody>
+</table>
+
+{% end %}

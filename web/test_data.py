@@ -276,11 +276,21 @@ impossible
     test_user = User(username="test", password_hash=util.hash_password("test", "test", app.settings["cookie_secret"]), email='test@test.com', active=True)
     db.add(test_user)
     db.flush()
-    test_user_team = Team(name="test", leader_id=test_user.id)
+    test_user_team = Team(name="test")
     db.add(test_user_team)
     db.flush()
-    db.add(TeamMember(user_id=test_user.id, team_id=test_user_team.id))
+    db.add(TeamMember(user_id=test_user.id, team_id=test_user_team.id, leader=True))
     db.flush()
+
+    db.add(Registration(team_id=test_user_team.id, contest_id=fk2012.id))
+
+    cs_p1_1 = ContestSubmission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, submitted=101, verdict='WA', solution='', solution_lang_id=cpp.id)
+    cs_p1_2 = ContestSubmission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, submitted=111, verdict='AC', solution='', solution_lang_id=cpp.id)
+    cs_p2_1 = ContestSubmission(team_id=test_user_team.id, problem_id=p2.id, contest_id=fk2012.id, submitted=39, verdict='WA', solution='', solution_lang_id=cpp.id)
+
+    db.add(cs_p1_1)
+    db.add(cs_p1_2)
+    db.add(cs_p2_1)
 
     db.commit()
 
