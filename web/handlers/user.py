@@ -1,15 +1,15 @@
 from tornado.web import authenticated
 from util import not_authenticated
 from base import BaseHandler
-from models import User, Team, TeamMember
+from models import User, Team, TeamMember, Message
 import util
 import time
 
 
-class LoginHandler(BaseHandler):
+class UserLoginHandler(BaseHandler):
     @not_authenticated
     def get(self):
-        self.render('auth/login.html', incorrect_login=False)
+        self.render('user/login.html', incorrect_login=False)
 
     @not_authenticated
     def post(self):
@@ -26,20 +26,20 @@ class LoginHandler(BaseHandler):
             # XXX: make sure only redirecting internally
             self.redirect(next)
         else:
-            self.render('auth/login.html', incorrect_login=True)
+            self.render('user/login.html', incorrect_login=True)
 
 
-class LogoutHandler(BaseHandler):
+class UserLogoutHandler(BaseHandler):
     @authenticated
     def get(self):
         self.clear_cookie('user')
         self.redirect('/') # TODO: use named routes
 
 
-class RegisterHandler(BaseHandler):
+class UserRegisterHandler(BaseHandler):
     @not_authenticated
     def get(self):
-        self.render('auth/register.html', errs={},
+        self.render('user/register.html', errs={},
                                      username=None,
                                      email=None,
                                      full_name=None,
@@ -80,7 +80,7 @@ class RegisterHandler(BaseHandler):
             # TODO: pass on the email of the newly created user
             self.redirect('/user/register/successful/') # TODO: use named routes
         else:
-            self.render('auth/register.html',
+            self.render('user/register.html',
                     errs=errs,
                     username=username,
                     email=email,
@@ -88,14 +88,82 @@ class RegisterHandler(BaseHandler):
                     institute=institute)
 
 
-class RegisterSuccessfulHandler(BaseHandler):
+class UserRegisterSuccessfulHandler(BaseHandler):
+    @not_authenticated
     def get(self):
         # TODO: pass on the email of the newly created user
-        self.render('auth/register_successful.html')
+        self.render('user/register_successful.html')
 
 
-class RegisterConfirmHandler(BaseHandler):
+class UserRegisterConfirmHandler(BaseHandler):
+    @not_authenticated
     def get(self, code):
         # TODO: handle confirmation code
         pass
+
+
+class UserProfileHandler(BaseHandler):
+    @authenticated
+    def get(self):
+        self.render('user/profile.html', current_page='profile')
+
+
+class UserPasswordHandler(BaseHandler):
+    @authenticated
+    def get(self):
+        self.render('user/password.html', current_page='password')
+
+
+class UserInboxHandler(BaseHandler):
+    @authenticated
+    def get(self):
+        self.render('user/inbox.html', current_page='inbox')
+
+
+class UserInboxReadHandler(BaseHandler):
+    @authenticated
+    def get(self, message_id=None):
+        sess = self.db()
+        message = util.get_or_404(sess, Message, message_id)
+        if self.current_user.get_messages(sess).filter(Message.id == message.id).count() == 0: raise HTTPError(404)
+        message.read = True
+        sess.commit()
+        self.render('user/inbox_read.html', message=message, current_page='inbox')
+
+
+class UserTeamCreateHandler(BaseHandler):
+    @authenticated
+    def get(self):
+        self.render('user/team_create.html', errs={}, current_page='team_create')
+
+    @authenticated
+    def post(self):
+        sess = self.db()
+
+        name = self.get_argument('name')
+
+        errs = Team.validate(sess, self.locale, name=name)
+
+        if not errs:
+            team = Team.create(
+                    db=sess,
+                    name=name,
+                    creator=self.current_user)
+
+            self.redirect('/user/home/team/%d' % team.id) # TODO: use named routes
+        else:
+            self.render('user/team_create.html',
+                    errs=errs,
+                    name=name,
+                    current_page='team_create')
+
+
+class UserTeamHandler(BaseHandler):
+    @authenticated
+    def get(self, team_id=None):
+        sess = self.db()
+        team = util.get_or_404(sess, Team, team_id)
+        if self.current_user.get_teams(sess).filter(Team.id == team.id).count() == 0: raise HTTPError(404)
+        self.render('user/team.html', current_page='team_%d' % team.id)
+
 

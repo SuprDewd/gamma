@@ -30,7 +30,19 @@
                         </ul>
                         <ul class="nav pull-right">
                             {% if current_user %}
-                                <li><a href="/user/logout/"><i class="icon-off"></i> {{ _("Logout") }}</a></li>
+
+                                <li class="dropdown"><a href="/user/profile" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> {{ current_user.username }} <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="/user/home/profile"><i class="icon-cog"></i> {{ _("Preferences") }}</a></li>
+                                        <li><a href="/user/home/inbox"><i class="icon-envelope"></i> {{ _("Messages") }}</a></li>
+                                        <li><a href="/user/home/team/create"><i class="icon-th"></i> {{ _("Teams") }}</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="/user/logout"><i class="icon-off"></i> {{ _("Logout") }}</a></li>
+                                    </ul>
+                                </li>
+
+                                <!-- <li><a href="#"><i class="icon&#45;user"></i> {{ current_user.username }}</a></li> -->
+                                <!-- <li><a href="/user/logout/"><i class="icon&#45;off"></i> {{ _("Logout") }}</a></li> -->
                             {% else %}
                                 <li><a href="/user/login/"><i class="icon-user"></i> {{ _("Login") }}</a></li>
                                 <li><a href="/user/register/">{{ _("User Register") }}</a></li>
@@ -51,5 +63,10 @@
 
         <script src="{{ static_url("js/jquery-1.9.1.min.js") }}"></script>
         <script src="{{ static_url("js/bootstrap.min.js") }}"></script>
+        <script type="text/javascript">
+            jQuery(function ($) {
+                {% block javascript %}{% end %}
+            });
+        </script>
     </body>
 </html>

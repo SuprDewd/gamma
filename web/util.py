@@ -29,3 +29,4 @@ def get_or_404(db, obj, id):
         return db.query(obj).filter_by(id=id).one()
     except (ValueError, NoResultFound):
         raise HTTPError(404)
+

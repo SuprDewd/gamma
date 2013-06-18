@@ -10,9 +10,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 engine = create_engine('sqlite://', convert_unicode=True)
-db_session = scoped_session(sessionmaker(bind=engine))
+db_session = sessionmaker(bind=engine)
 locale = tornado.locale.get('en_US')
 salt='abc'
+
 
 class SQLAlchemyTestCase:
     def setUp(self):

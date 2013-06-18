@@ -1,0 +1,7 @@
+{% extends "home_base.html" %}
+{% block user_home_content %}
+<h3>{{ message.subject or _("Message") }}</h3>
+<h4>{{ _("from") }} {{ message.get_user_from(db).username }}</h4>
+<p>{{ message.content }}</p>
+
+{% end %}

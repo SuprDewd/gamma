@@ -13,7 +13,6 @@ table.contest_problems th, table.contest_problems td {
     text-align: center;
 }
 
-/*
 #scoreboard td.ac {
     background-color: #DFF0D1;
 }
@@ -54,4 +53,18 @@ table.contest_problems th, table.contest_problems td {
     text-align: center;
     width: 40px;
 }
-*/
+
+#inbox tbody tr:hover {
+    background: #FAFAFA;
+    cursor: pointer;
+}
+
+#inbox tbody tr.unread {
+    font-weight: bold;
+    background: #FEFEFE;
+}
+
+#user_home_content h3 {
+    margin-top: -6px;
+    margin-bottom: 30px;
+}

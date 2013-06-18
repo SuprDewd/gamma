@@ -1,0 +1,29 @@
+{% extends "home_base.html" %}
+{% block user_home_content %}
+<h3>{{ _("Inbox") }}</h3>
+
+<table id="inbox" class="table table-condensed">
+    <thead>
+        <tr>
+            <th>{{ _("From") }}</th>
+            <th>{{ _("Subject") }}</th>
+            <th>{{ _("Date") }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for message in current_user.get_messages(db) %}
+            <tr class="{{ 'read' if message.read else 'unread' }}" data-message-id="{{ message.id }}">
+                <td>{{ message.get_user_from(db).username }}</td>
+                <td>{{ message.subject }}</td>
+                <td>{{ locale.format_date(message.sent) }}</td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+{% end %}
+
+{% block javascript %}
+    $('#inbox tr').click(function () {
+        window.location.href = '/user/home/inbox/read/' + $(this).attr('data-message-id');
+    });
+{% end %}

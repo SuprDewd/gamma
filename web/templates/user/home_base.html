@@ -1,0 +1,37 @@
+{% extends "../base.html" %}
+{% block content %}
+<div class="row">
+    <div class="span3">
+        <div class="sidebar-nav">
+            <div class="well" style="padding:8px 0">
+                <ul class="nav nav-list">
+                    <li class="nav-header">{{ _("Preferences") }}</li>
+                    <li class="{{ 'active' if current_page == 'profile' else '' }}"><a href="/user/home/profile"><i class="icon-user"></i> {{ _("Profile") }}</a></li>
+                    <li class="{{ 'active' if current_page == 'password' else '' }}"><a href="/user/home/password"><i class="icon-lock"></i> {{ _("Password") }}</a></li>
+                    <li class="divider"></li>
+                    <li class="nav-header">{{ _("Messages") }}</li>
+                    {% set unread_msg_cnt = current_user.get_messages(db, only_unread=True).count() %}
+                    <li class="{{ 'active' if current_page == 'inbox' else '' }}"><a href="/user/home/inbox"><i class="icon-envelope"></i> {{ _("Inbox") }}
+                        {% if unread_msg_cnt > 0 %}
+                            <span class="badge badge-%nfo">{{ unread_msg_cnt }}</span>
+                        {% end %}
+                    </a></li>
+                    <li class="divider"></li>
+                    <li class="nav-header">{{ _("Teams") }}</li>
+                    <li class="{{ 'active' if current_page == 'team_create' else '' }}"><a href="/user/home/team/create"><i class="icon-plus-sign"></i> {{ _("Create team") }}</a></li>
+                    {% for team in current_user.get_teams(db) %}
+                        <li class="{{ 'active' if current_page == ('team_%d' % team.id) else '' }}"><a href="/user/home/team/{{ team.id }}"><i class="icon-th"></i> {{ team.name }}</a></li>
+                    {% end %}
+                    <li class="divider"></li>
+                    <li><a href="/user/logout"><i class="icon-off"></i> {{ _("Logout") }}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="span8 well" id="user_home_content">
+        {% block user_home_content %}
+        {% end %}
+    </div>
+</div>
+{% end %}

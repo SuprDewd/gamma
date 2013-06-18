@@ -14,7 +14,7 @@
         <tr>
             <td>{{ problem.id }}</td>
             <td><a href="/problem/{{ problem.id }}/">{{ problem.name }}</a></td>
-            <td>{{ problem.correct_submissions }}/{{ problem.total_submissions }}</td>
+            <td>{{ problem.users_solved_count(db) }}/{{ problem.users_tried_count(db) }}</td>
         </tr>
         {% end %}
     </tbody>

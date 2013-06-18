@@ -23,19 +23,19 @@
         </tr>
     </thead>
     <tbody>
-        {% for i, row in enumerate(standings) %}
+        {% for i, (team, points, penalty, problems) in enumerate(standings) %}
             <tr>
                 <td class="rank">{{ i+1 }}</td>
-                <td class="team">{{ row['team'].name }}</td>
-                <td class="points">{{ row['points'] }}</td>
-                <td class="penalty">{{ '%2d:%2d' % (row['penalty']/60, row['penalty']%60) }}</td>
-                {% for problem in row['problems'] %}
-                    {% if problem[0] is None and problem[1] == 0 %}
+                <td class="team">{{ team.name }}</td>
+                <td class="points">{{ points }}</td>
+                <td class="penalty">{{ '%2d:%2d' % (int(penalty)/60, int(penalty)%60) }}</td>
+                {% for (short_id, incorrect_tries, ac_time) in problems %}
+                    {% if ac_time is None and incorrect_tries == 0 %}
                         <td class="problem"></td>
-                    {% elif problem[0] is None and problem[1] > 0 %}
-                        <td class="problem wa">--:-- ({{ problem[1] }})</td>
+                    {% elif ac_time is None and incorrect_tries > 0 %}
+                        <td class="problem wa">--:-- ({{ incorrect_tries }})</td>
                     {% else %}
-                        <td class="problem ac">{{ '%2d:%2d' % (problem[0]/60, problem[0]%60) }} ({{ problem[1] }})</td>
+                        <td class="problem ac">{{ '%2d:%2d' % (int(ac_time)/60, int(ac_time)%60) }} ({{ incorrect_tries }})</td>
                     {% end %}
                 {% end %}
 

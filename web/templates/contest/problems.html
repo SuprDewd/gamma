@@ -6,6 +6,7 @@
         <tr>
             <th>#</th>
             <th>{{ _("Name") }}</th>
+            <th>{{ _("Solved") }}</th>
             <!-- <th class="contest_name">{{ _("Name") }}</th> -->
             <!-- <th class="contest_start">{{ _("Start") }}</th> -->
             <!-- <th class="contest_duration">{{ _("Duration") }}</th> -->
@@ -14,10 +15,11 @@
         </tr>
     </thead>
     <tbody>
-        {% for problem in problems %}
+        {% for cproblem in problems %}
             <tr>
-                <td>XXX</td>
-                <td><a href="/contest/{{ contest.id }}/problem/{{ problem.id }}/">{{ problem.name }}</a></td> {# TODO: use short_id everywhere #}
+                <td>{{ cproblem.short_id }}</td>
+                <td><a href="/contest/{{ contest.id }}/problem/{{ cproblem.short_id }}/">{{ cproblem.problem.name }}</a></td> {# TODO: use short_id everywhere #}
+                <td>{{ cproblem.teams_solved_count(db) }}/{{ cproblem.teams_tried_count(db) }}</td>
             </tr>
         {% end %}
     </tbody>

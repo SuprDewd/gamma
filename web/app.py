@@ -40,11 +40,17 @@ class GammaWeb(tornado.web.Application):
             url('/problem/([^/]+)/comments/?',                   CommentsHandler),
 
             # Users
-            url('/user/register/?',                              RegisterHandler),
-            url('/user/register/successful/?',                   RegisterSuccessfulHandler),
-            url('/user/register/confirm/([^/]+)/?',              RegisterConfirmHandler),
-            url('/user/login/?',                                 LoginHandler),
-            url('/user/logout/?',                                LogoutHandler),
+            url('/user/register/?',                              UserRegisterHandler),
+            url('/user/register/successful/?',                   UserRegisterSuccessfulHandler),
+            url('/user/register/confirm/([^/]+)/?',              UserRegisterConfirmHandler),
+            url('/user/login/?',                                 UserLoginHandler),
+            url('/user/logout/?',                                UserLogoutHandler),
+            url('/user/home/profile/?',                          UserProfileHandler),
+            url('/user/home/password/?',                         UserPasswordHandler),
+            url('/user/home/inbox/?',                            UserInboxHandler),
+            url('/user/home/inbox/read/([0-9]+)/?',              UserInboxReadHandler),
+            url('/user/home/team/create/?',                      UserTeamCreateHandler),
+            url('/user/home/team/([0-9]+)/?',                    UserTeamHandler),
 
             # Admin
             url('/admin/?',                                      AdminHandler),

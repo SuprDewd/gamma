@@ -276,7 +276,7 @@ impossible
     test_user = User(username="test", password_hash=util.hash_password("test", "test", app.settings["cookie_secret"]), email='test@test.com', active=True)
     db.add(test_user)
     db.flush()
-    test_user_team = Team(name="test")
+    test_user_team = Team(name="test", locked=True)
     db.add(test_user_team)
     db.flush()
     db.add(TeamMember(user_id=test_user.id, team_id=test_user_team.id, leader=True))
@@ -291,6 +291,18 @@ impossible
     db.add(cs_p1_1)
     db.add(cs_p1_2)
     db.add(cs_p2_1)
+
+    for i in range(-100, 8):
+        db.add(Contest(name='Test %d' % i,
+            public=True,
+            start_time=datetime.datetime.now() + datetime.timedelta(0, i * 60 * 60, 0),
+            registration_start=datetime.datetime.now() + datetime.timedelta(0, i * 60 * 60, 0) - datetime.timedelta(0, 2 * 60 * 60, 0),
+            registration_end=datetime.datetime.now() + datetime.timedelta(0, i * 60 * 60, 0) - datetime.timedelta(0, 1 * 60 * 60, 0),
+            duration=3 * 60))
+
+    db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Halló Heimur", content=u"Halló! Þetta er prufa..."))
+    db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Meeoooww", content=u"Halló! Þetta er meiri prufa..."))
+    db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Mooo", content=u"Þetta er meiri prufa...", read=True))
 
     db.commit()
 

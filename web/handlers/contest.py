@@ -46,7 +46,7 @@ class ContestRegisterHandler(BaseHandler):
             self.render('contest/register.html',
                     already_registered=False,
                     contest=contest,
-                    teams=sess.query(Team).join(TeamMember, Team.id == TeamMember.team_id).filter(TeamMember.user_id == self.current_user.id, Team.locked))
+                    teams=self.current_user.get_teams(sess, only_locked=True))
 
     @authenticated
     def post(self, contest_id=None):
@@ -77,7 +77,8 @@ class ContestHandler(BaseHandler):
         sess = self.db
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public or (not contest.open_for_guests and (not self.current_user or not self.is_registered(sess, self.current_user))): raise HTTPError(404)
-        self.render('contest/problems.html', contest=contest, problems=sess.query(Problem).join(ContestProblem, Problem.id == ContestProblem.problem_id).filter(ContestProblem.contest_id == contest_id).all())
+        # self.render('contest/problems.html', contest=contest, problems=sess.query(Problem).join(ContestProblem, Problem.id == ContestProblem.problem_id).filter(ContestProblem.contest_id == contest_id).all())
+        self.render('contest/problems.html', contest=contest, problems=contest.get_open_problems(sess))
 
 class ContestStandingsHandler(BaseHandler):
     def get(self, contest_id=None):
@@ -85,4 +86,16 @@ class ContestStandingsHandler(BaseHandler):
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         self.render('contest/standings.html', contest=contest, standings=contest.get_standings(sess))
+
+class ContestProblemHandler(BaseHandler):
+    def get(self, contest_id=None, short_id=None):
+        sess = self.db
+        contest = util.get_or_404(sess, Contest, contest_id)
+        try:
+            problem = contest.get_problem(sess, short_id)
+        except NoResultFound:
+            raise HTTPError(404)
+
+        # TODO: make sure problem is open
+
 

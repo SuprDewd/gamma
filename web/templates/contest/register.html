@@ -8,14 +8,23 @@
     {# TODO: display more info and perhaps unregister #}
     <h4>{{ _("You are already registered") }}</h4>
 {% else %}
-    <form action="" method="post">
-        <select name="team_id" id="team_id">
-            {% for team in teams %}
-                <option value="{{ team.id }}">{{ team.name }}</option>
-            {% end %}
-        </select>
+    <form action="" method="post" class="form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="team_id">{{ _("Team") }}</label>
+            <div class="controls">
+                <select name="team_id" id="team_id">
+                    {% for team in teams %}
+                        <option value="{{ team.id }}">{{ team.name }}</option>
+                    {% end %}
+                </select>
+            </div>
+        </div>
 
-        <input type="submit" value="register" />
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" class="btn btn-primary" value="{{ _("register") }}" />
+            </div>
+        </div>
 
         {% raw xsrf_form_html() %}
     </form>
