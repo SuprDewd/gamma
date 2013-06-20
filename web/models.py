@@ -21,7 +21,7 @@ class User(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     username = Column(String(30), nullable=False, unique=True)
     password_hash = Column(String)
-    email = Column(String(200), nullable=False)
+    email = Column(String(200))
     name = Column(String)
     institute = Column(String)
     api_key = Column(String)
@@ -30,6 +30,11 @@ class User(Base, DefaultTable):
     confirm_token = Column(String, default=util.generate_confirm_token, unique=True)
     # teams = relationship('TeamMember')
     # main_team_id = Column(Integer, ForeignKey('Team.id'))
+
+    def get_by_id(self, db, id):
+        return db.query(User) \
+                 .filter_by(id=id) \
+                 .first()
 
     def get_main_team(self, db):
         return db.query(Team) \
@@ -124,6 +129,16 @@ class User(Base, DefaultTable):
                 active=True
             ).first()
 
+    def has_permission(self, db, permission):
+        # TODO: Implement permissions
+        return True
+
+    def can_judge_all_contests(self, sess):
+        return self.has_permission(sess, 'CAN_JUDGE_ALL_CONTESTS')
+
+    def can_judge_contest(self, sess, contest_id):
+        return self.has_permission(sess, 'CAN_JUDGE_CONTEST_%d' % contest_id) or self.can_judge_all_contests(sess)
+
 
 class Team(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
@@ -140,7 +155,7 @@ class Team(Base, DefaultTable):
 
     @staticmethod
     def get_by_id(db, id):
-        return db.query(Team).filter_by(id=id).one()
+        return db.query(Team).filter_by(id=id).first()
 
     @staticmethod
     def validate(db, locale, name):
@@ -245,35 +260,30 @@ class Contest(Base, DefaultTable):
         cur_time = cur_time or datetime.datetime.now()
         return (cur_time - self.start_time).total_seconds() / 60 if self.start_time else None
 
-    def get_all_problems(self, db):
-        return db.query(ContestProblem) \
-                 .filter_by(contest_id=self.id) \
-                 .order_by(ContestProblem.short_id) \
-                 .all()
+    def get_problems(self, db, only_open=False, cur_time=None):
+        res = db.query(ContestProblem) \
+                .filter_by(contest_id=self.id) \
 
-    def get_open_problems(self, db, cur_time=None):
-        cur_time = cur_time or datetime.datetime.now()
-        if not self.start_time: return self.get_all_problems(db)
-        at = self.elapsed(cur_time)
-        return db.query(ContestProblem) \
-                 .filter_by(contest_id=self.id) \
-                 .filter(and_( \
+        if only_open and self.start_time:
+            cur_time = cur_time or datetime.datetime.now()
+            at = self.elapsed(cur_time)
+            res = res.filter(and_( \
                         or_(ContestProblem.start_time == None, ContestProblem.start_time <= at), \
                         or_(ContestProblem.end_time == None, at <= ContestProblem.end_time)
-                    )) \
-                 .order_by(ContestProblem.short_id) \
-                 .all()
+                    ))
+
+        res = res.order_by(ContestProblem.short_id)
+        return res
 
     def get_problem(self, db, short_id):
         return db.query(ContestProblem) \
                  .filter_by(contest_id=self.id, short_id=short_id) \
-                 .one()
+                 .first()
 
     @staticmethod
     def get_public(db):
         return db.query(Contest) \
-                 .filter(Contest.public) \
-                 .all()
+                .filter(Contest.public)
 
     # @staticmethod
     # def get_current(db, cur_time=None):
@@ -296,7 +306,7 @@ class Contest(Base, DefaultTable):
         cur_time = cur_time or datetime.datetime.now()
         standings = {}
 
-        for submission in db.query(ContestSubmission).filter_by(contest_id=self.id).filter(ContestSubmission.verdict.in_(['AC', 'WA', 'TLE', 'PE', 'RE', 'MLE'])).order_by(ContestSubmission.submitted):
+        for submission in db.query(Submission).filter_by(contest_id=self.id).filter(Submission.verdict.in_(['AC', 'WA', 'TLE', 'PE', 'RE', 'MLE'])).order_by(Submission.submitted):
             short_id = db.query(ContestProblem).filter_by(contest_id=self.id, problem_id=submission.problem_id).one().short_id
             # standings.setdefault(submission.team_id, [0, 0, {}])
             standings.setdefault(submission.team_id, {})
@@ -305,7 +315,7 @@ class Contest(Base, DefaultTable):
             if submission.verdict == 'AC':
                 # standings[submission.team_id][0] += 1
                 # standings[submission.team_id][1] += submission.submitted
-                standings[submission.team_id][short_id][1] = submission.submitted
+                standings[submission.team_id][short_id][1] = (submission.submitted - self.start_time).total_seconds() / 60.0
             else:
                 # standings[submission.team_id][1] += 20
                 standings[submission.team_id][short_id][0] += 1
@@ -314,7 +324,7 @@ class Contest(Base, DefaultTable):
             (
                 Team.get_by_id(db, team_id),
                 sum( 1 if ac_time else 0 for _, [_, ac_time] in problems.items() ),
-                sum( 20*incorrect_tries + ac_time if ac_time else 0 for _, [incorrect_tries, ac_time] in problems.items() ),
+                sum( 20*incorrect_tries + ac_time if ac_time else 0 for _, [incorrect_tries, ac_time] in problems.items() ) if self.start_time else 0,
                 [
                     (short_id, incorrect_tries, ac_time)
                     for short_id, [incorrect_tries, ac_time] in sorted(problems.items())
@@ -353,6 +363,7 @@ class Contest(Base, DefaultTable):
         # standings.sort(comparer)
         # return standings
 
+
 class Registration(Base, DefaultTable):
     team_id = Column(Integer, ForeignKey('Team.id'), primary_key=True)
     contest_id = Column(Integer, ForeignKey('Contest.id'), primary_key=True)
@@ -366,6 +377,12 @@ class ProgrammingLanguage(Base, DefaultTable):
     name = Column(String, nullable=False)
     compile_cmd = Column(String)
     run_cmd = Column(String, nullable=False)
+
+    @staticmethod
+    def get_by_id(db, id):
+        return db.query(ProgrammingLanguage) \
+                 .filter_by(id=id) \
+                 .first()
 
 
 class Problem(Base, DefaultTable):
@@ -381,11 +398,25 @@ class Problem(Base, DefaultTable):
     memory_limit = Column(Integer) # bytes
     # contests = relationship('ContestProblem')
 
+    @staticmethod
+    def get_by_id(db, id):
+        return db.query(Problem).filter_by(id=id).first()
+
     def users_solved_count(self, db):
-        return db.query(Submission.user_id).filter_by(problem_id=self.id, verdict='AC').distinct().count()
+        return db.query(Submission.team_id) \
+                 .filter_by(problem_id=self.id, contest_id=None, verdict='AC') \
+                 .distinct() \
+                 .count()
 
     def users_tried_count(self, db):
-        return db.query(Submission.user_id).filter_by(problem_id=self.id).distinct().count()
+        return db.query(Submission.team_id) \
+                 .filter_by(problem_id=self.id, contest_id=None) \
+                 .distinct() \
+                 .count()
+
+    def get_tests(self, db):
+        return db.query(Test) \
+                 .filter_by(problem_id=self.id)
 
     @staticmethod
     def get_public(db):
@@ -399,25 +430,69 @@ class Test(Base, DefaultTable):
     output = Column(Text, nullable=False)
 
 
+# class Submission(Base, DefaultTable):
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
+#     problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
+#     submitted = Column(DateTime, default=datetime.datetime.now, nullable=False)
+#     verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='submission_verdict'))
+#     solution = Column(Text)
+#     solution_lang_id = Column(Integer, ForeignKey('ProgrammingLanguage.id'))
+
+
 class Submission(Base, DefaultTable):
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('User.id'), nullable=False)
-    problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
-    submitted = Column(DateTime, default=datetime.datetime.now, nullable=False)
-    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='submission_verdict'))
-    solution = Column(Text)
-    solution_lang_id = Column(Integer, ForeignKey('ProgrammingLanguage.id'))
-
-
-class ContestSubmission(Base, DefaultTable):
     id = Column(Integer, primary_key=True)
     team_id = Column(Integer, ForeignKey('Team.id'), nullable=False)
     problem_id = Column(Integer, ForeignKey('Problem.id'), nullable=False)
-    contest_id = Column(Integer, ForeignKey('Contest.id'), nullable=False)
-    submitted = Column(Float, nullable=False) # minutes after contest.start_time
-    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='contest_submission_verdict'))
+    contest_id = Column(Integer, ForeignKey('Contest.id'))
+    submitted = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    verdict = Column(Enum('Pending', 'WA', 'TLE', 'AC', 'PE', 'RE', 'MLE', 'SUBERR', name='submission_verdict'))
     solution = Column(Text, nullable=False)
     solution_lang_id = Column(Integer, ForeignKey('ProgrammingLanguage.id'), nullable=False)
+
+    @staticmethod
+    def get_by_id(db, id):
+        return db.query(Submission) \
+                 .filter_by(id=id) \
+                 .first()
+
+
+class JudgeQueue(Base, DefaultTable):
+    submission_id = Column(Integer, ForeignKey('Submission.id'), primary_key=True)
+    last_announce = Column(DateTime)
+
+    ANNOUNCE_TIMEOUT = 30 * 1000 # ms
+    REAL_ANNOUNCE_TIMEOUT = 60 * 1000 # ms
+
+    @staticmethod
+    def get_next(db, contest_id=None, any_contest=False):
+        # TODO: Make sure each client gets a different submission
+
+        trans = db.begin(subtransactions=True)
+        try:
+            res = db.query(JudgeQueue) \
+                    .join(Submission, JudgeQueue.submission_id == Submission.id) \
+                    .filter(or_(JudgeQueue.last_announce == None, JudgeQueue.last_announce <= datetime.datetime.now() - datetime.timedelta(0, JudgeQueue.REAL_ANNOUNCE_TIMEOUT / 1000.0, 0)))
+
+            if not any_contest: res = res.filter(Submission.contest_id == contest_id)
+            nxt = res.first()
+            if not nxt: return None
+
+            nxt.last_announce = datetime.datetime.now()
+            trans.commit()
+
+            return db.query(Submission) \
+                     .filter_by(id=nxt.submission_id) \
+                     .one()
+        except:
+            trans.rollback()
+            raise
+
+    @staticmethod
+    def get_by_submission_id(db, submission_id):
+        return db.query(JudgeQueue) \
+                 .filter_by(submission_id=submission_id) \
+                 .first()
 
 
 class ContestProblem(Base, DefaultTable):
@@ -433,14 +508,25 @@ class ContestProblem(Base, DefaultTable):
         UniqueConstraint('short_id', 'contest_id'),
     )
 
+    @staticmethod
+    def get_by_id(db, problem_id, contest_id):
+        return db.query(ContestProblem) \
+                 .filter_by(problem_id=problem_id, contest_id=contest_id) \
+                 .first()
+
+    def get_problem(self, db):
+        return db.query(Problem) \
+                 .filter_by(id=self.problem_id) \
+                 .first()
+
     def is_open(self, elapsed):
         return (not self.start_time or elapsed >= self.start_time) and (not self.end_time or self.end_time <= elapsed)
 
     def teams_solved_count(self, db):
-        return db.query(ContestSubmission.team_id).filter_by(contest_id=self.contest_id, problem_id=self.problem_id, verdict='AC').distinct().count()
+        return db.query(Submission.team_id).filter_by(contest_id=self.contest_id, problem_id=self.problem_id, verdict='AC').distinct().count()
 
     def teams_tried_count(self, db):
-        return db.query(ContestSubmission.team_id).filter_by(contest_id=self.contest_id, problem_id=self.problem_id).distinct().count()
+        return db.query(Submission.team_id).filter_by(contest_id=self.contest_id, problem_id=self.problem_id).distinct().count()
 
 
 class ProblemComment(Base, DefaultTable):

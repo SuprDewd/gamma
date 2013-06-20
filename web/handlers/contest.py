@@ -37,7 +37,7 @@ class AllContestsHandler(BaseHandler):
 class ContestRegisterHandler(BaseHandler):
     @authenticated
     def get(self, contest_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         if contest.is_registered(sess, self.current_user):
@@ -50,7 +50,7 @@ class ContestRegisterHandler(BaseHandler):
 
     @authenticated
     def post(self, contest_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         team_id = int(self.get_argument('team_id'))
@@ -65,7 +65,7 @@ class ContestRegisterHandler(BaseHandler):
 
 class ContestRegisteredHandler(BaseHandler):
     def get(self, contest_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         self.render('contest/registered.html',
@@ -74,22 +74,22 @@ class ContestRegisteredHandler(BaseHandler):
 
 class ContestHandler(BaseHandler):
     def get(self, contest_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public or (not contest.open_for_guests and (not self.current_user or not self.is_registered(sess, self.current_user))): raise HTTPError(404)
         # self.render('contest/problems.html', contest=contest, problems=sess.query(Problem).join(ContestProblem, Problem.id == ContestProblem.problem_id).filter(ContestProblem.contest_id == contest_id).all())
-        self.render('contest/problems.html', contest=contest, problems=contest.get_open_problems(sess))
+        self.render('contest/problems.html', contest=contest, problems=contest.get_problems(sess, only_open=True))
 
 class ContestStandingsHandler(BaseHandler):
     def get(self, contest_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         if not contest.public: raise HTTPError(404)
         self.render('contest/standings.html', contest=contest, standings=contest.get_standings(sess))
 
 class ContestProblemHandler(BaseHandler):
     def get(self, contest_id=None, short_id=None):
-        sess = self.db
+        sess = self.db()
         contest = util.get_or_404(sess, Contest, contest_id)
         try:
             problem = contest.get_problem(sess, short_id)

@@ -284,9 +284,9 @@ impossible
 
     db.add(Registration(team_id=test_user_team.id, contest_id=fk2012.id))
 
-    cs_p1_1 = ContestSubmission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, submitted=101, verdict='WA', solution='', solution_lang_id=cpp.id)
-    cs_p1_2 = ContestSubmission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, submitted=111, verdict='AC', solution='', solution_lang_id=cpp.id)
-    cs_p2_1 = ContestSubmission(team_id=test_user_team.id, problem_id=p2.id, contest_id=fk2012.id, submitted=39, verdict='WA', solution='', solution_lang_id=cpp.id)
+    cs_p1_1 = Submission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, verdict='WA', solution='', solution_lang_id=cpp.id)
+    cs_p1_2 = Submission(team_id=test_user_team.id, problem_id=p1.id, contest_id=fk2012.id, verdict='AC', solution='', solution_lang_id=cpp.id)
+    cs_p2_1 = Submission(team_id=test_user_team.id, problem_id=p2.id, contest_id=fk2012.id, verdict='WA', solution='', solution_lang_id=cpp.id)
 
     db.add(cs_p1_1)
     db.add(cs_p1_2)
@@ -303,6 +303,8 @@ impossible
     db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Halló Heimur", content=u"Halló! Þetta er prufa..."))
     db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Meeoooww", content=u"Halló! Þetta er meiri prufa..."))
     db.add(Message(user_to_id=test_user.id, user_from_id=test_user.id, subject=u"Mooo", content=u"Þetta er meiri prufa...", read=True))
+
+    db.add(User(username='test_judge', api_key='65d13f6a296145338e12a26cda0a0eea', active=True))
 
     db.commit()
 

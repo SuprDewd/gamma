@@ -52,6 +52,11 @@ class GammaWeb(tornado.web.Application):
             url('/user/home/team/create/?',                      UserTeamCreateHandler),
             url('/user/home/team/([0-9]+)/?',                    UserTeamHandler),
 
+            # API
+            url('/api/judge/get_next_submission/?',              APIJudgeGetNextSubmissionHandler),
+            url('/api/judge/announce/?',                         APIJudgeAnnounceHandler),
+            url('/api/judge/verdict/?',                          APIJudgeVerdictHandler),
+
             # Admin
             url('/admin/?',                                      AdminHandler),
         ]
@@ -72,14 +77,15 @@ class GammaWeb(tornado.web.Application):
         tornado.web.Application.__init__(self, handlers, **settings)
         db_engine = create_engine(options.db_path, convert_unicode=True, echo=options.debug)
         models.Base.metadata.create_all(db_engine)
-        self.db = scoped_session(sessionmaker(bind=db_engine))
+        # self.db = scoped_session(sessionmaker(bind=db_engine))
+        self.db = sessionmaker(bind=db_engine)
 
         logger = logging.getLogger()
         if options.debug:
             logger.setLevel(logging.DEBUG)
 
         if options.local:
-            test_data.add_test_data(self, self.db)
+            test_data.add_test_data(self, self.db())
 
     def _init_db(self):
         sess = self.db()

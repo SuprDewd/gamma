@@ -9,7 +9,7 @@
             <th class="team">Team</th>
             <th class="points">Points</th>
             <th class="penalty">Penalty</th>
-            {% for problem in contest.problems %}
+            {% for problem in contest.get_problems(db()) %}
                 <th class="problem">{{ problem.short_id }}</th>
             {% end %}
             <!-- <th class="problem">A</th> -->
@@ -28,14 +28,14 @@
                 <td class="rank">{{ i+1 }}</td>
                 <td class="team">{{ team.name }}</td>
                 <td class="points">{{ points }}</td>
-                <td class="penalty">{{ '%2d:%2d' % (int(penalty)/60, int(penalty)%60) }}</td>
+                <td class="penalty">{{ '%02d:%02d' % (int(penalty)/60, int(penalty)%60) }}</td>
                 {% for (short_id, incorrect_tries, ac_time) in problems %}
                     {% if ac_time is None and incorrect_tries == 0 %}
                         <td class="problem"></td>
                     {% elif ac_time is None and incorrect_tries > 0 %}
                         <td class="problem wa">--:-- ({{ incorrect_tries }})</td>
                     {% else %}
-                        <td class="problem ac">{{ '%2d:%2d' % (int(ac_time)/60, int(ac_time)%60) }} ({{ incorrect_tries }})</td>
+                        <td class="problem ac">{{ '%02d:%02d' % (int(ac_time)/60, int(ac_time)%60) }} ({{ incorrect_tries }})</td>
                     {% end %}
                 {% end %}
 

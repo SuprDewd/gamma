@@ -11,9 +11,9 @@
         </tr>
     </thead>
     <tbody>
-        {% for message in current_user.get_messages(db) %}
+        {% for message in current_user.get_messages(db()) %}
             <tr class="{{ 'read' if message.read else 'unread' }}" data-message-id="{{ message.id }}">
-                <td>{{ message.get_user_from(db).username }}</td>
+                <td>{{ message.get_user_from(db()).username }}</td>
                 <td>{{ message.subject }}</td>
                 <td>{{ locale.format_date(message.sent) }}</td>
             </tr>
