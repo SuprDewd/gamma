@@ -5,6 +5,12 @@ gamma is a programming contest management system and environment,
 designed for use in an annual programming contest for Icelandic
 high school students.
 
+Status of project
+-----------------
+
+This project has been abandoned in favor of the [epsilon programming contest
+management system](https://github.com/SuprDewd/epsilon).
+
 
 Design and goals
 ----------------
