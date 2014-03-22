@@ -68,3 +68,7 @@ table.contest_problems th, table.contest_problems td {
     margin-top: -6px;
     margin-bottom: 30px;
 }
+
+#problem h2 {
+    margin-top: 1em;
+}

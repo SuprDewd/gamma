@@ -1,0 +1,28 @@
+{% extends "contest_layout.html" %}
+{% block contest_content %}
+
+<table class="table table-bordered table-striped" id="submissions">
+    <thead>
+        <tr>
+            <th class="problem">{{ _("Problem") }}</th>
+            <th class="submitted">{{ _("Submitted") }}</th>
+            <th class="language">{{ _("Language") }}</th>
+            <th class="verdict">{{ _("Verdict") }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+            <tr>
+                {% set problem = q.ContestProblem_get_by_id(problem_id=submission.problem_id, contest_id=submission.contest_id) %}
+                {% set lang = q.ProgrammingLanguage_get_by_id(submission.solution_lang_id) %}
+                {% set submitted = submission.submitted - contest.start_time %}
+                <td class="problem">{{ problem.short_id }}</td>
+                <td class="submitted">{{ submitted }}</td>
+                <td class="language">{{ lang.name }}</td>
+                <td class="verdict">{{ submission.verdict }}</td>
+            </tr>
+        {% end %}
+    </tbody>
+</table>
+
+{% end %}

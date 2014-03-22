@@ -1,7 +1,7 @@
-{% extends ../base.html %}
-{% block content_fluid %}
+{% extends "contest_layout_fluid.html" %}
+{% block contest_content %}
 
-<h1>Standings</h1>
+{# <h1>Standings</h1> #}
 <table class="table table-bordered table-striped" id="scoreboard">
     <thead>
         <tr>
@@ -9,7 +9,7 @@
             <th class="team">Team</th>
             <th class="points">Points</th>
             <th class="penalty">Penalty</th>
-            {% for problem in contest.get_problems(db()) %}
+            {% for problem in q.Contest_get_problems(contest) %}
                 <th class="problem">{{ problem.short_id }}</th>
             {% end %}
             <!-- <th class="problem">A</th> -->

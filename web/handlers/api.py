@@ -5,24 +5,6 @@ import datetime
 import json
 from models import Problem, Submission, ProgrammingLanguage, ContestProblem, JudgeQueue, Team, User
 
-class AllProblemsHandler(BaseHandler):
-    def get(self, cur_page=None):
-        sess = self.db()
-        problems = Problem.get_public(sess)
-        cur_page = int(cur_page) if cur_page else 0
-        items_per_page = 10 # TODO: extract to config
-        page_location = '/problems/%d/' # TODO: use named routes somehow
-        return self.render('problem/all.html',
-                    cur_page=cur_page,
-                    item_count=len(problems),
-                    items_per_page=items_per_page,
-                    page_location=page_location,
-                    problems=PaginationModule.current_items(problems, cur_page, items_per_page))
-
-class ProblemHandler(BaseHandler):
-    def get(self, problem_id):
-        pass
-
 class APIHandler(BaseHandler):
     def get_current_user(self):
         username = self.get_argument('username')
@@ -39,42 +21,39 @@ class APIHandler(BaseHandler):
 class APIJudgeAnnounceHandler(APIHandler):
     @authenticated
     def post(self):
-        sess = self.db()
         contest_id = int(self.get_argument('contest_id'))
 
-        if not self.current_user.can_judge_contest(sess, contest_id):
+        if not self.q.User_can_judge_contest(self.current_user, contest_id):
             self.write(json.dumps({'error': 'ACCESS_DENIED'}))
             return
 
-        queue_item = JudgeQueue.get_by_submission_id(sess, int(self.get_argument('submission_id')))
+        queue_item = self.q.JudgeQueue_get_by_submission_id(int(self.get_argument('submission_id')))
         queue_item.last_announce = datetime.datetime.now()
 
-        sess.commit()
+        self.q.db.commit()
         self.write(json.dumps({'announce_timeout': JudgeQueue.ANNOUNCE_TIMEOUT}))
 
 class APIJudgeVerdictHandler(APIHandler):
     @authenticated
     def post(self):
-        sess = self.db()
         contest_id = int(self.get_argument('contest_id'))
 
-        if not self.current_user.can_judge_contest(sess, contest_id):
+        if not self.q.JudgeQueue_can_judge_contest(self.current_user, contest_id):
             self.write(json.dumps({'error': 'ACCESS_DENIED'}))
             return
 
-        submission = Submission.get_by_id(sess, int(self.get_argument('submission_id')))
+        submission = self.q.Submission_get_by_id(int(self.get_argument('submission_id')))
         submission.verdict = self.get_argument('verdict')
 
-        queue_item = JudgeQueue.get_by_submission_id(sess, int(self.get_argument('submission_id')))
-        sess.delete(queue_item)
+        queue_item = self.q.JudgeQueue_get_by_submission_id(int(self.get_argument('submission_id')))
+        self.q.db.delete(queue_item)
 
-        sess.commit()
+        self.q.db.commit()
         self.write(json.dumps({'announce_timeout': JudgeQueue.ANNOUNCE_TIMEOUT}))
 
 class APIJudgeGetNextSubmissionHandler(APIHandler):
     @authenticated
     def post(self):
-        sess = self.db()
         contest_id = int(self.get_argument('contest_id'))
 
         # TODO: Remove begin
@@ -87,20 +66,20 @@ class APIJudgeGetNextSubmissionHandler(APIHandler):
             # sess.commit()
         # TODO: Remove end
 
-        if not self.current_user.can_judge_contest(sess, contest_id):
+        if not self.q.User_can_judge_contest(self.current_user, contest_id):
             self.write(json.dumps({'error': 'ACCESS_DENIED'}))
             return
 
-        nxt = JudgeQueue.get_next(sess, contest_id=contest_id)
+        nxt = self.q.JudgeQueue_get_next(contest_id=contest_id)
 
         if not nxt:
             self.write(json.dumps({'error': 'NO_SUBMISSIONS'}))
             return
 
-        team = Team.get_by_id(sess, nxt.team_id)
-        problem = Problem.get_by_id(sess, nxt.problem_id)
-        contest_problem = ContestProblem.get_by_id(sess, contest_id=contest_id, problem_id=nxt.problem_id)
-        solution_lang = ProgrammingLanguage.get_by_id(sess, nxt.solution_lang_id)
+        team = self.q.Team_get_by_id(nxt.team_id)
+        problem = self.q.Problem_get_by_id(nxt.problem_id)
+        contest_problem = self.q.ContestProblem_get_by_id(contest_id=contest_id, problem_id=nxt.problem_id)
+        solution_lang = self.q.ProgrammingLanguage.get_by_id(nxt.solution_lang_id)
 
         res = {
             'submission': {
@@ -127,14 +106,14 @@ class APIJudgeGetNextSubmissionHandler(APIHandler):
             'tests': []
         }
 
-        for t in problem.get_tests(sess).all():
+        for t in self.q.Problem_get_tests(problem).all():
             res['tests'].append({
                 'input': t.input,
                 'output': t.output,
             })
 
         if problem.checker:
-            checker_lang = ProgrammingLanguage.get_by_id(sess, problem.checker_lang_id)
+            checker_lang = self.q.ProgrammingLanguage_get_by_id(problem.checker_lang_id)
             res['checker'] = {
                 'name': checker_lang.name,
                 'compile_cmd': checker_lang.compile_cmd,

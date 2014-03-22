@@ -1,0 +1,13 @@
+{% extends ../base.html %}
+{% block content_fluid %}
+
+<div class="row-fluid">
+    <div class="span2">
+        {% include sidebar.html %}
+    </div>
+    <div class="span10">
+        {% block contest_content %}{% end %}
+    </div>
+</div>
+
+{% end %}

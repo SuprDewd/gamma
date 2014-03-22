@@ -5,8 +5,7 @@ from models import Problem, Submission
 
 class AllProblemsHandler(BaseHandler):
     def get(self, cur_page=None):
-        sess = self.db()
-        problems = Problem.get_public(sess)
+        problems = self.q.Problem_get_public().all()
         cur_page = int(cur_page) if cur_page else 0
         items_per_page = 10 # TODO: extract to config
         page_location = '/problems/%d/' # TODO: use named routes somehow

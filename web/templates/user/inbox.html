@@ -7,13 +7,13 @@
         <tr>
             <th>{{ _("From") }}</th>
             <th>{{ _("Subject") }}</th>
-            <th>{{ _("Date") }}</th>
+            <th>{{ _("Received") }}</th>
         </tr>
     </thead>
     <tbody>
-        {% for message in current_user.get_messages(db()) %}
+        {% for message in q.User_get_messages(current_user) %}
             <tr class="{{ 'read' if message.read else 'unread' }}" data-message-id="{{ message.id }}">
-                <td>{{ message.get_user_from(db()).username }}</td>
+                <td>{{ q.Message_get_user_from(message).username }}</td>
                 <td>{{ message.subject }}</td>
                 <td>{{ locale.format_date(message.sent) }}</td>
             </tr>

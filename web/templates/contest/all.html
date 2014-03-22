@@ -7,7 +7,7 @@
         <thead>
             <tr>
                 <th class="contest_name">{{ _("Name") }}</th>
-                <th class="contest_start">{{ _("Start") }}</th>
+                <th class="contest_start">{{ _("Contest Started") }}</th>
                 <th class="contest_duration">{{ _("Duration") }}</th>
                 <th class="contest_standings"></th>
                 <th class="contest_registration"></th>
@@ -17,7 +17,7 @@
             {% for contest in current_contests %}
                 <tr>
                     <td class="contest_name">
-                        {% if contest.open_for_guests or (current_user and contest.is_registered(db(), current_user)) %}
+                        {% if contest.open_for_guests or (current_user and q.Contest_is_registered(contest, current_user)) %}
                             <a href="/contest/{{ contest.id }}/">{{ contest.name }}</a>
                         {% else %}
                             {{ contest.name }}
@@ -32,10 +32,10 @@
                     <td class="contest_standings"><a href="/contest/{{ contest.id }}/standings/">{{ _("Standings") }}</a></td>
                     <td class="contest_registration">
                         {% set need_separator = False %}
-                        {% if current_user and contest.is_registered(db(), current_user) %}
+                        {% if current_user and q.Contest_is_registered(contest, current_user) %}
                             {{ _("You are registered") }}
                             {% set need_separator = True %}
-                        {% elif contest.is_registration_open() %}
+                        {% elif q.Contest_is_registration_open(contest) %}
                             <a href="/contest/{{ contest.id }}/register/">{{ _("Contest Register") }}</a>
                             {% set need_separator = True %}
                         {% end %}
@@ -44,7 +44,7 @@
                             |
                         {% end %}
 
-                        <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ contest.registration_count(db()) }}</a>
+                        <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ q.Contest_registration_count(contest) }}</a>
                     </td>
                 </tr>
             {% end %}
@@ -58,7 +58,7 @@
         <thead>
             <tr>
                 <th class="contest_name">{{ _("Name") }}</th>
-                <th class="contest_start">{{ _("Start") }}</th>
+                <th class="contest_start">{{ _("Contest Starts") }}</th>
                 <th class="contest_duration">{{ _("Duration") }}</th>
                 <th class="contest_registration">{{ _("Registration") }}</th>
             </tr>
@@ -74,12 +74,12 @@
                         {% end %}
                     </td>
                     <td class="contest_registration">
-                        {% if current_user and contest.is_registered(db(), current_user) %}
+                        {% if current_user and q.Contest_is_registered(contest, current_user) %}
                             {{ _("You are registered") }}
                         {% else %}
-                            {% if contest.after_registration_end() %}
+                            {% if q.Contest_after_registration_end(contest) %}
                                 {{ _("Closed") }}
-                            {% elif contest.after_registration_start() %}
+                            {% elif q.Contest_after_registration_start(contest) %}
                                 <a href="/contest/{{ contest.id }}/register/">{{ _("Contest Register") }}</a>
                             {% elif contest.registration_start %}
                                 {{ _("Opens") }} {{ locale.format_date(contest.registration_start) }}
@@ -88,8 +88,8 @@
                             {% end %}
                         {% end %}
 
-                        {% set registered = contest.registration_count(db()) %}
-                        {% if (True or registered > 0) and contest.after_registration_start() %}
+                        {% set registered = q.Contest_registration_count(contest) %}
+                        {% if (True or registered > 0) and q.Contest_after_registration_start(contest) %}
                             | <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ registered }}</a>
                         {% end %}
                     </td>
@@ -104,7 +104,7 @@
     <thead>
         <tr>
             <th class="contest_name">{{ _("Name") }}</th>
-            <th class="contest_start">{{ _("Start") }}</th>
+            <th class="contest_start">{{ _("Contest Started") }}</th>
             <th class="contest_duration">{{ _("Duration") }}</th>
             <th class="contest_standings"></th>
             <th class="contest_registration"></th>
@@ -122,7 +122,7 @@
                 </td>
                 <td class="contest_standings"><a href="/contest/{{ contest.id }}/standings/">{{ _("Final standings") }}</a></td>
                 <td class="contest_registration">
-                    <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ contest.registration_count(db()) }}</a>
+                    <a href="/contest/{{ contest.id }}/registered/"><i class="icon-user"></i>&times;{{ q.Contest_registration_count(contest) }}</a>
                 </td>
             </tr>
         {% end %}

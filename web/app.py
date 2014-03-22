@@ -24,41 +24,41 @@ class GammaWeb(tornado.web.Application):
             url('/',                                             IndexHandler),
 
             # Contests
-            url('/contests/?',                                   AllContestsHandler),
-            url('/contests/([0-9]+)/?',                          AllContestsHandler),
-            url('/contest/([0-9]+)/?',                           ContestHandler),
-            url('/contest/([0-9]+)/register/?',                  ContestRegisterHandler),
-            url('/contest/([0-9]+)/registered/?',                ContestRegisteredHandler),
-            url('/contest/([0-9]+)/standings/?',                 ContestStandingsHandler),
-            url('/contest/([0-9]+)/problem/([^/]+)/?',           ProblemHandler),
-            url('/contest/([0-9]+)/problem/([^/]+)/comments/?',  CommentsHandler),
+            url('/contests',                                     AllContestsHandler,              name='contests'),
+            url('/contest/([0-9]+)',                             ContestHandler,                  name='contest'),
+            url('/contest/([0-9]+)/register',                    ContestRegisterHandler,          name='contest_register'),
+            url('/contest/([0-9]+)/registered',                  ContestRegisteredHandler,        name='contest_registered'),
+            url('/contest/([0-9]+)/standings',                   ContestStandingsHandler,         name='contest_standings'),
+            url('/contest/([0-9]+)/submissions',                 ContestSubmissionsHandler,       name='contest_all_submissions'),
+            url('/contest/([0-9]+)/submissions/([0-9]+)',        ContestSubmissionsHandler,       name='contest_team_submissions'),
+            url('/contest/([0-9]+)/problem/([^/]+)',             ContestProblemHandler,           name='contest_problem'),
+            url('/contest/([0-9]+)/problem/([^/]+)/comments',    CommentsHandler,                 name='contest_problem_comments'),
 
             # Problems
-            url('/problems/?',                                   AllProblemsHandler),
-            url('/problems/([0-9]+)/?',                          AllProblemsHandler),
-            url('/problem/([^/]+)/?',                            ProblemHandler),
-            url('/problem/([^/]+)/comments/?',                   CommentsHandler),
+            url('/problems',                                     AllProblemsHandler,              name='problems'),
+            url('/problem/([^/]+)',                              ProblemHandler,                  name='problem'),
+            url('/problem/([^/]+)/comments',                     CommentsHandler,                 name='problem_comments'),
 
             # Users
-            url('/user/register/?',                              UserRegisterHandler),
-            url('/user/register/successful/?',                   UserRegisterSuccessfulHandler),
-            url('/user/register/confirm/([^/]+)/?',              UserRegisterConfirmHandler),
-            url('/user/login/?',                                 UserLoginHandler),
-            url('/user/logout/?',                                UserLogoutHandler),
-            url('/user/home/profile/?',                          UserProfileHandler),
-            url('/user/home/password/?',                         UserPasswordHandler),
-            url('/user/home/inbox/?',                            UserInboxHandler),
-            url('/user/home/inbox/read/([0-9]+)/?',              UserInboxReadHandler),
-            url('/user/home/team/create/?',                      UserTeamCreateHandler),
-            url('/user/home/team/([0-9]+)/?',                    UserTeamHandler),
+            url('/user/register',                                UserRegisterHandler,             name='user_register'),
+            url('/user/register/successful',                     UserRegisterSuccessfulHandler,   name='user_register_successful'),
+            url('/user/register/confirm/([^/]+)',                UserRegisterConfirmHandler,      name='user_register_confirm'),
+            url('/user/login',                                   UserLoginHandler,                name='user_login'),
+            url('/user/logout',                                  UserLogoutHandler,               name='user_logout'),
+            url('/user/home/profile',                            UserProfileHandler,              name='user_profile'),
+            url('/user/home/password',                           UserPasswordHandler,             name='user_password'),
+            url('/user/home/inbox',                              UserInboxHandler,                name='user_inbox'),
+            url('/user/home/inbox/read/([0-9]+)',                UserInboxReadHandler,            name='user_inbox_read'),
+            url('/user/home/team/create',                        UserTeamCreateHandler,           name='user_team_create'),
+            url('/user/home/team/([0-9]+)',                      UserTeamHandler,                 name='user_team'),
 
             # API
-            url('/api/judge/get_next_submission/?',              APIJudgeGetNextSubmissionHandler),
-            url('/api/judge/announce/?',                         APIJudgeAnnounceHandler),
-            url('/api/judge/verdict/?',                          APIJudgeVerdictHandler),
+            url('/api/judge/get_next_submission',                APIJudgeGetNextSubmissionHandler, name='api_judge_get_next_submission'),
+            url('/api/judge/announce',                           APIJudgeAnnounceHandler,          name='api_judge_announce'),
+            url('/api/judge/verdict',                            APIJudgeVerdictHandler,           name='api_judge_verdict'),
 
             # Admin
-            url('/admin/?',                                      AdminHandler),
+            url('/admin',                                        AdminHandler,                    name='admin'),
         ]
 
         cur_dir = os.path.dirname(__file__)

@@ -1,5 +1,6 @@
 # coding: utf8
 from models import *
+from queries import Queries
 import datetime
 import random
 
@@ -273,7 +274,7 @@ impossible
     db.add(p2t1)
     db.flush()
 
-    test_user = User(username="test", password_hash=util.hash_password("test", "test", app.settings["cookie_secret"]), email='test@test.com', active=True)
+    test_user = User(username="test", password_hash=Queries._User_hash_password("test", "test", app.settings["cookie_secret"]), email='test@test.com', active=True)
     db.add(test_user)
     db.flush()
     test_user_team = Team(name="test", locked=True)

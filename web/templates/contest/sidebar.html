@@ -1,0 +1,26 @@
+{% set elapsed = q.Contest_elapsed(contest) %}
+{% set user_team = q.Contest_get_user_team(contest, current_user) %}
+
+<div class="sidebar-nav">
+    <div class="well" style="padding: 8px 0">
+        <ul class="nav nav-list">
+            <li class="nav-header">{{ contest.name }}</li>
+            <li><a href="{{ reverse_url('contest_all_submissions', contest.id) }}">{{ _("All submissions") }}</a></li>
+            {% if user_team %}
+                <li><a href="{{ reverse_url('contest_team_submissions', contest.id, user_team.team_id) }}">{{ _("My submissions") }}</a></li>
+            {% end %}
+            <li><a href="{{ reverse_url('contest_standings', contest.id) }}">{{ _("Standings") }}</a></li>
+            <li class="divider"></li>
+            {% for cur_problem in q.Contest_get_problems(contest, only_open=True, also_after_close=True) %}
+                {% set curpr = q.ContestProblem_get_problem(cur_problem) %}
+                {% if q.ContestProblem_is_open(cur_problem, elapsed) %}
+                <li style="margin-left:-15px;margin-right:-15px;padding-left:15px;padding-right:15px;">
+                    <h5 style="margin:0"><a href="{{ reverse_url('contest_problem', contest.id, cur_problem.short_id) }}">{{ cur_problem.short_id }} - {{ curpr.name }}</a> ({{ q.ContestProblem_teams_solved_count(cur_problem) }}/{{ q.ContestProblem_teams_tried_count(cur_problem) }})</h5>
+                </li>
+                {% else %}
+                    <li>{{ cur_problem.short_id }}</li>
+                {% end %}
+            {% end %}
+        </ul>
+    </div>
+</div>

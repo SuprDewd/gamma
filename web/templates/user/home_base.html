@@ -10,7 +10,7 @@
                     <li class="{{ 'active' if current_page == 'password' else '' }}"><a href="/user/home/password"><i class="icon-lock"></i> {{ _("Password") }}</a></li>
                     <li class="divider"></li>
                     <li class="nav-header">{{ _("Messages") }}</li>
-                    {% set unread_msg_cnt = current_user.get_messages(db(), only_unread=True).count() %}
+                    {% set unread_msg_cnt = q.User_get_messages(current_user, only_unread=True).count() %}
                     <li class="{{ 'active' if current_page == 'inbox' else '' }}"><a href="/user/home/inbox"><i class="icon-envelope"></i> {{ _("Inbox") }}
                         {% if unread_msg_cnt > 0 %}
                             <span class="badge badge-%nfo">{{ unread_msg_cnt }}</span>
@@ -19,7 +19,7 @@
                     <li class="divider"></li>
                     <li class="nav-header">{{ _("Teams") }}</li>
                     <li class="{{ 'active' if current_page == 'team_create' else '' }}"><a href="/user/home/team/create"><i class="icon-plus-sign"></i> {{ _("Create team") }}</a></li>
-                    {% for team in current_user.get_teams(db()) %}
+                    {% for team in q.User_get_teams(current_user) %}
                         <li class="{{ 'active' if current_page == ('team_%d' % team.id) else '' }}"><a href="/user/home/team/{{ team.id }}"><i class="icon-th"></i> {{ team.name }}</a></li>
                     {% end %}
                     <li class="divider"></li>

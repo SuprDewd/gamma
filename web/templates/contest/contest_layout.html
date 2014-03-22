@@ -1,0 +1,16 @@
+{% extends ../base.html %}
+{% block content %}
+
+{% set elapsed = q.Contest_elapsed(contest) %}
+{% set user_team = q.Contest_get_user_team(contest, current_user) %}
+
+<div class="row">
+    <div class="span3">
+        {% include sidebar.html %}
+    </div>
+    <div class="span9">
+        {% block contest_content %}{% end %}
+    </div>
+</div>
+
+{% end %}

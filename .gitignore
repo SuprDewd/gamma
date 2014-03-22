@@ -1,1 +1,5 @@
 *.pyc
+
+web/bin
+web/include
+web/lib

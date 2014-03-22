@@ -1,0 +1,80 @@
+{% extends "contest_layout.html" %}
+{% block contest_content %}
+
+{% set pr = q.ContestProblem_get_problem(problem) %}
+
+<div id="problem">
+    <h1>{{ _("Problem") }} {{ problem.short_id }} - {{ pr.name }}</h1>
+    <div style="text-align:justify">
+    {% raw pr.description %}
+    </div>
+    <div>
+        <hr />
+        <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <div id="legend">
+                    <legend>{{ _("Submit a solution") }}</legend>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="prog_lang">{{ _('Programming language') }}</label>
+                    <div class="controls">
+                        <select name="prog_lang" id="prog_lang">
+                            {% for lang in q.ProgrammingLanguage_get_all() %}
+                                <option value="{{ lang.id }}">{{ lang.name }}</option>
+                            {% end %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="source_code">{{ _("Source code") }}</label>
+                    <div class="controls">
+                        <textarea name="source_code" id="source_code"></textarea>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="source_file">{{ _("Or choose file") }}</label>
+                    <div class="controls">
+                        <input type="file" name="source_file" id="source_file" />
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn btn-success">{{ _("Submit") }}</button>
+                    </div>
+                </div>
+            </fieldset>
+
+            {% raw xsrf_form_html() %}
+        </form>
+    </div>
+</div>
+
+{# <table class="table table-hover table-striped table-bordered contest_problems"> #}
+{#     <thead> #}
+{#         <tr> #}
+{#             <th>#</th> #}
+{#             <th>{{ _("Name") }}</th> #}
+{#             <th>{{ _("Solved") }}</th> #}
+{#             <!-- <th class="contest_name">{{ _("Name") }}</th> --> #}
+{#             <!-- <th class="contest_start">{{ _("Start") }}</th> --> #}
+{#             <!-- <th class="contest_duration">{{ _("Duration") }}</th> --> #}
+{#             <!-- <th class="contest_standings"></th> --> #}
+{#             <!-- <th class="contest_registration"></th> --> #}
+{#         </tr> #}
+{#     </thead> #}
+{#     <tbody> #}
+{#         {% for cproblem in problems %} #}
+{#             <tr> #}
+{#                 <td>{{ cproblem.short_id }}</td> #}
+{#                 <td><a href="/contest/{{ contest.id }}/problem/{{ cproblem.short_id }}/">{{ q.ContestProblem_get_problem(cproblem).name }}</a></td> #}
+{#                 <td>{{ q.ContestProblem_teams_solved_count(cproblem) }}/{{ q.ContestProblem_teams_tried_count(cproblem) }}</td> #}
+{#             </tr> #}
+{#         {% end %} #}
+{#     </tbody> #}
+{# </table> #}
+{#  #}
+
+{% end %}
